@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Itens - Sistema de Armário Inteligente</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <header>
+        <div class="container header-content">
+            <div class="logo">
+                <i class="fas fa-toolbox logo-icon"></i>
+                <h1>Armário Inteligente</h1>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="dashboard.html" class="nav-link">Dashboard</a></li>
+                    <li><a href="employees.html" class="nav-link">Funcionários</a></li>
+                    <li><a href="transactions.html" class="nav-link">Transações</a></li>
+                    <li><a href="items.html" class="nav-link active">Itens</a></li>
+                </ul>
+            </nav>
+            <div class="user-info">
+                <span>Mestre de Obras</span>
+                <button class="logout-btn" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> Sair
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <div class="page-title">
+                <i class="fas fa-tools"></i>
+                <h1>Gerenciar Itens</h1>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Cadastrar Novo Item</h2>
+                </div>
+                <form id="item-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="item-name">Nome do Item</label>
+                            <input type="text" id="item-name" placeholder="Ex: Martelo, Chave de Fenda, Capacete"
+                                required>
+                        </div>
+                        <div class="form-group">
+                            <label for="item-type">Tipo</label>
+                            <select id="item-type" required>
+                                <option value="">Selecione o tipo</option>
+                                <option value="ferramenta">Ferramenta</option>
+                                <option value="epi">EPI</option>
+                                <option value="material">Material</option>
+                                <option value="outro">Outro</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="item-brand">Marca</label>
+                            <input type="text" id="item-brand" placeholder="Marca do item">
+                        </div>
+                        <div class="form-group">
+                            <label for="item-model">Modelo</label>
+                            <input type="text" id="item-model" placeholder="Modelo do item">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="item-description">Descrição</label>
+                        <textarea id="item-description" rows="3" placeholder="Descrição detalhada do item"></textarea>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="item-quantity">Quantidade</label>
+                            <input type="number" id="item-quantity" min="1" value="1" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="item-available">Disponível</label>
+                            <select id="item-available" required>
+                                <option value="true">Sim</option>
+                                <option value="false">Não</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-save"></i> Cadastrar Item
+                    </button>
+                </form>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Itens Cadastrados</h2>
+                    <div class="table-actions">
+                        <button class="btn btn-primary" onclick="refreshItems()">
+                            <i class="fas fa-sync-alt"></i> Atualizar
+                        </button>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table id="items-table">
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>Tipo</th>
+                                <th>Marca/Modelo</th>
+                                <th>Descrição</th>
+                                <th>Disponível</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Dados serão preenchidos via JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 Sistema de Armário Inteligente - Desenvolvido para TCC de ADS</p>
+        </div>
+    </footer>
+
+    <script src="js/app.js"></script>
+</body>
+
+</html>

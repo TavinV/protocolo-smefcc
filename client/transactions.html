@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transações - Sistema de Armário Inteligente</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <header>
+        <div class="container header-content">
+            <div class="logo">
+                <i class="fas fa-toolbox logo-icon"></i>
+                <h1>Armário Inteligente</h1>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="dashboard.html" class="nav-link">Dashboard</a></li>
+                    <li><a href="employees.html" class="nav-link">Funcionários</a></li>
+                    <li><a href="transactions.html" class="nav-link active">Transações</a></li>
+                    <li><a href="items.html" class="nav-link">Itens</a></li>
+                </ul>
+            </nav>
+            <div class="user-info">
+                <span>Mestre de Obras</span>
+                <button class="logout-btn" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> Sair
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <div class="page-title">
+                <i class="fas fa-exchange-alt"></i>
+                <h1>Histórico de Transações</h1>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Filtros</h2>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="filter-date">Data</label>
+                        <input type="date" id="filter-date">
+                    </div>
+                    <div class="form-group">
+                        <label for="filter-type">Tipo</label>
+                        <select id="filter-type">
+                            <option value="">Todos</option>
+                            <option value="retirada">Retirada</option>
+                            <option value="devolução">Devolução</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="filter-employee">Funcionário</label>
+                        <select id="filter-employee">
+                            <option value="">Todos</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>&nbsp;</label>
+                        <button class="btn btn-primary" onclick="applyFilters()">
+                            <i class="fas fa-filter"></i> Aplicar Filtros
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Transações</h2>
+                    <div class="table-actions">
+                        <button class="btn btn-primary" onclick="refreshTransactions()">
+                            <i class="fas fa-sync-alt"></i> Atualizar
+                        </button>
+                        <button class="btn btn-success" onclick="exportTransactions()">
+                            <i class="fas fa-download"></i> Exportar
+                        </button>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table id="transactions-table">
+                        <thead>
+                            <tr>
+                                <th>Data/Hora</th>
+                                <th>Funcionário</th>
+                                <th>CPF</th>
+                                <th>Item</th>
+                                <th>Tipo</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Dados serão preenchidos via JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 Sistema de Armário Inteligente - Desenvolvido para TCC de ADS</p>
+        </div>
+    </footer>
+
+    <script src="js/app.js"></script>
+</body>
+
+</html>
