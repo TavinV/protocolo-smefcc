@@ -1,7 +1,7 @@
 {
   "type": "excalidraw",
   "version": 2,
-  "source": "https://excalidraw.com",
+  "source": "https://marketplace.visualstudio.com/items?itemName=pomdtr.excalidraw-editor",
   "elements": [
     {
       "id": "id9P-Fjkd1efY0ZJZn_kA",
@@ -61,7 +61,7 @@
       "version": 144,
       "versionNonce": 197805765,
       "isDeleted": false,
-      "boundElements": null,
+      "boundElements": [],
       "updated": 1760726703879,
       "link": null,
       "locked": false,
@@ -97,8 +97,8 @@
         "type": 3
       },
       "seed": 413293931,
-      "version": 185,
-      "versionNonce": 2076994469,
+      "version": 225,
+      "versionNonce": 2119133379,
       "isDeleted": false,
       "boundElements": [
         {
@@ -106,7 +106,7 @@
           "id": "-MvAC5SKmZZf-sK6WnJb1"
         }
       ],
-      "updated": 1760726707624,
+      "updated": 1761693639549,
       "link": null,
       "locked": false
     },
@@ -130,11 +130,11 @@
       "index": "a2V",
       "roundness": null,
       "seed": 1716905387,
-      "version": 81,
-      "versionNonce": 510803013,
+      "version": 121,
+      "versionNonce": 1598732525,
       "isDeleted": false,
-      "boundElements": null,
-      "updated": 1760726707624,
+      "boundElements": [],
+      "updated": 1761693639549,
       "link": null,
       "locked": false,
       "text": "\nItem Model\n\n_id\nname\ntype\nbrand\ndescription\n",
@@ -296,8 +296,7 @@
     "gridSize": 20,
     "gridStep": 5,
     "gridModeEnabled": false,
-    "viewBackgroundColor": "#ffffff",
-    "lockedMultiSelections": {}
+    "viewBackgroundColor": "#ffffff"
   },
   "files": {}
 }
