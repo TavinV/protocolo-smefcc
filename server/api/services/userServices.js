@@ -6,6 +6,12 @@ import {
 } from "../util/errors.js";
 import bcrypt from "bcrypt";
 
+function stripSensitiveInfo(user) {
+    const userObj = user.toObject();
+    delete userObj.senha;
+    return userObj;
+}
+
 class UserService {
     /**
      * Creates a new user
@@ -21,11 +27,11 @@ class UserService {
     async create(data) {
         try {
             const existingCPF = await User.findOne({ cpf: data.cpf });
-            if (existingCPF) throw new ConflictError("CPF already exists");
+            if (existingCPF) throw new ConflictError("CPF já cadastrado");
 
             if (data.rfid) {
                 const existingRFID = await User.findOne({ rfid: data.rfid });
-                if (existingRFID) throw new ConflictError("RFID already exists");
+                if (existingRFID) throw new ConflictError("RFID já cadastrado");
             }
 
             if (data.senha) {
@@ -34,7 +40,7 @@ class UserService {
             }
 
             const user = await User.create(data);
-            return user;
+            return stripSensitiveInfo(user);
         } catch (err) {
             if (err.name === "ValidationError") throw new ValidationError(err.message);
             throw err;
@@ -48,11 +54,14 @@ class UserService {
      */
     async read(filters = {}) {
         const query = {};
-        if (filters.name) query.name = { $regex: filters.name, $options: "i" };
-        if (filters.cpf) query.cpf = filters.cpf;
+        if (filters.nome) query.nome = { $regex: filters.nome, $options: "i" };
+        if (filters.cpf){
+            const cpfFormatted = filters.cpf.replace(/\D/g, '').replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+            query.cpf = cpfFormatted;
+        }
         if (filters.rfid) query.rfid = filters.rfid;
-
-        return await User.find(query);
+        
+        return await User.find(query).then(users => users.map(stripSensitiveInfo));
     }
 
     /**
@@ -63,8 +72,8 @@ class UserService {
      */
     async getById(id) {
         const user = await User.findById(id);
-        if (!user) throw new NotFoundError("User not found");
-        return user;
+        if (!user) throw new NotFoundError("Usuário não encontrado");
+        return stripSensitiveInfo(user);
     }
 
     /**
@@ -77,16 +86,16 @@ class UserService {
      */
     async update(id, data) {
         const user = await User.findById(id);
-        if (!user) throw new NotFoundError("User not found");
+        if (!user) throw new NotFoundError("Usuário não encontrado");
 
         if (data.cpf && data.cpf !== user.cpf) {
             const existingCPF = await User.findOne({ cpf: data.cpf });
-            if (existingCPF) throw new ConflictError("CPF already exists");
+            if (existingCPF) throw new ConflictError("CPF já cadastrado");
         }
 
         if (data.rfid && data.rfid !== user.rfid) {
             const existingRFID = await User.findOne({ rfid: data.rfid });
-            if (existingRFID) throw new ConflictError("RFID already exists");
+            if (existingRFID) throw new ConflictError("RFID já existe");
         }
 
         if (data.senha) {
@@ -96,7 +105,7 @@ class UserService {
 
         Object.assign(user, data);
         await user.save();
-        return user;
+        return stripSensitiveInfo(user);
     }
 
     /**
@@ -107,9 +116,17 @@ class UserService {
      */
     async delete(id) {
         const user = await User.findById(id);
-        if (!user) throw new NotFoundError("User not found");
+        if (!user) throw new NotFoundError("Usuário não encontrado");
 
-        await user.remove();
+        try {
+            const result = await User.deleteOne({ _id: id });
+            if (result.deletedCount === 0) {
+                throw new NotFoundError("Usuário não encontrado");
+            }
+        } catch (error) {
+            if (error.name === "NotFoundError") throw error;
+            throw new Error("Erro ao deletar usuário");
+        }
     }
 
     /**
@@ -118,7 +135,9 @@ class UserService {
      * @returns {Promise<User|null>} Found user or null
      */
     async findByCPF(cpf) {
-        return await User.findOne({ cpf });
+        const cpfFormatted = cpf.replace(/\D/g, '').replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+        const user = await User.findOne({ cpf: cpfFormatted });
+        return stripSensitiveInfo(user);
     }
 
     /**
@@ -127,7 +146,8 @@ class UserService {
      * @returns {Promise<User|null>} Found user or null
      */
     async findByRFID(rfid) {
-        return await User.findOne({ rfid });
+        const user = await User.findOne({ rfid });
+        return stripSensitiveInfo(user);
     }
 
     /**
@@ -145,7 +165,7 @@ class UserService {
         const isMatch = await bcrypt.compare(senha, user.senha);
         if (!isMatch) throw new ValidationError("Credenciais inválidas");
 
-        return user;
+        return stripSensitiveInfo(user);
     }
 
     /**
@@ -162,17 +182,32 @@ class UserService {
     }
 
     /**
+     * Attaches an RFID to a user
+     * @param {String} id - User ID
+     * @param {String} rfid - RFID tag
+     * @returns {Promise<User>} Updated user
+     */
+    async attachRFID(id, rfid) {
+        const user = await User.findById(id);
+        if (!user) throw new NotFoundError("Usuário não encontrado");
+
+        user.rfid = rfid;
+        await user.save();
+        return stripSensitiveInfo(user);
+    }
+
+    /**
      * Removes RFID from a user (useful when reassigning tags)
      * @param {String} id - User ID
      * @returns {Promise<User>} Updated user
      */
     async removeRFID(id) {
         const user = await User.findById(id);
-        if (!user) throw new NotFoundError("User not found");
+        if (!user) throw new NotFoundError("Usuário não encontrado");
 
         user.rfid = null;
         await user.save();
-        return user;
+        return stripSensitiveInfo(user);
     }
 
     /**
