@@ -1,7 +1,7 @@
 # 🧰 SMEFCC  
-📌 **Sistema de Monitoramento e Empréstimo de Ferramentas com Controle por Cartão**
+📌 **Sistema de Monitoramento e Empréstimo de Fiscalização da Construção Cívil**
 
-O **SMEFCC** é um sistema de gerenciamento e rastreamento de ferramentas desenvolvido para o **SENAI**, integrando tecnologia **RFID** e controle digital de usuários, itens e empréstimos.  
+O **SMEFCC** é um sistema de gerenciamento e rastreamento de ferramentas desenvolvido para o **SENAI** como trabalho de conclusão do curso técnico em mecatrônica, integrando tecnologia **RFID** e controle digital de usuários, itens e empréstimos.  
 O objetivo é substituir o controle manual de ferramentas por um sistema automatizado, eficiente e seguro — reduzindo perdas, melhorando a organização e facilitando a rastreabilidade de cada item.
 
 ---
@@ -64,8 +64,8 @@ server/
 │   ├── middleware/        # Autenticação, logging, etc.
 │   ├── routes/            # Rotas da API REST
 │   ├── util/              # Respostas padronizadas, erros e helpers
-│   ├── logs/              # Armazenamento dos logs do sistema
-│   └── index.js           # Ponto de entrada da API
+│   └── server.js          # Ponto de entrada da API
+|   └── app.js             # App do express
 │
 │── docs/
 │   └── documentation.md   # Documentação detalhada da API
@@ -86,7 +86,7 @@ Crie um arquivo **.env** na raiz do projeto e configure conforme o exemplo abaix
 MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/smefcc
 JWT_SECRET=sua_chave_jwt_secreta
 PORT=3000
-MASTER_KEY=Ota@181207
+MASTER_KEY=sua_chave_secreta
 ```
 
 > 🔑 **MASTER_KEY** — Chave secreta usada para criar usuários com cargo `admin`.
@@ -115,7 +115,7 @@ MASTER_KEY=Ota@181207
 
 5. O servidor será iniciado em:
    ```
-   http://localhost:3000
+   http://localhost:<Porta definida no .env>
    ```
 
 ---
@@ -145,19 +145,6 @@ Authorization: Bearer <seu_token_jwt>
 A documentação completa das rotas, parâmetros e respostas está disponível em:  
 👉 [`server/docs/documentation.md`](server/docs/documentation.md)
 
----
-
-## 🧾 Logs  
-
-Todos os eventos do sistema são registrados em:
-```
-server/api/logs/
-```
-
-Configuração via variável de ambiente:
-```
-LOG_LEVEL=info
-```
 
 ---
 
