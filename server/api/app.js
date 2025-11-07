@@ -7,6 +7,11 @@ const app = express();
 
 configDotenv();
 
+app.use(cors({
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'x-api-key'],
+}));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -25,9 +30,4 @@ app.use('/api/transactions', transactionRoutes);
 app.use('/api/rfid-pending', rfidPendingRoutes);
 
 app.use(express.json());
-app.use(cors({
-    origin: '*',
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'x-api-key'],
-}));
 export default app;
