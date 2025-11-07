@@ -147,19 +147,78 @@ class TransactionService {
      * @returns {Promise<Transaction[]>}
      */
     async getAllBorrowedItems() {
-        const lastTransactions = await Transaction.aggregate([
-            { $sort: { timestamp: -1 } },
+    try {
+        const borrowedItems = await Transaction.aggregate([
+            // Ordena do mais recente pro mais antigo
+            { $sort: { createdAt: -1 } },
+
+            // Agrupa por item e pega a transação mais recente de cada item
             {
                 $group: {
                     _id: "$item",
                     lastTransaction: { $first: "$$ROOT" },
                 },
             },
-            { $match: { "lastTransaction.tipo": "retirada" } },
-        ]);
 
-        // Mapeia para formato mais limpo
-        return lastTransactions.map((t) => t.lastTransaction);
+            // Filtra somente as transações onde o último tipo foi "retirada"
+            {
+                $match: {
+                    "lastTransaction.tipo": "retirada",
+                },
+            },
+
+            // Traz apenas o documento da transação (remove o _id do agrupamento)
+            {
+                $replaceRoot: { newRoot: "$lastTransaction" },
+            },
+
+            // Popula o item vinculado
+            {
+                $lookup: {
+                    from: "items", // nome exato da coleção no MongoDB
+                    localField: "item",
+                    foreignField: "_id",
+                    as: "itemData",
+                },
+            },
+            { $unwind: { path: "$itemData", preserveNullAndEmptyArrays: true } },
+
+            // Popula o usuário vinculado
+            {
+                $lookup: {
+                    from: "users", // nome exato da coleção de usuários
+                    localField: "usuario.id",
+                    foreignField: "_id",
+                    as: "userData",
+                },
+            },
+            { $unwind: { path: "$userData", preserveNullAndEmptyArrays: true } },
+
+            // Projeta o formato final da resposta
+            {
+                $project: {
+                    _id: 1,
+                    tipo: 1,
+                    observacoes: 1,
+                    createdAt: 1,
+                    updatedAt: 1,
+                    "usuario.id": 1,
+                    "usuario.nome": "$userData.nome",
+                    "usuario.cpf": "$userData.cpf",
+                    "item._id": "$itemData._id",
+                    "item.codigoInterno": "$itemData.codigoInterno",
+                    "item.status": "$itemData.status",
+                    "item.modelo": "$itemData.modelo",
+                },
+            },
+        ]);
+    
+            // ✅ sempre retorna array — mesmo se vazio ou com 1 item
+            return borrowedItems || [];
+        } catch (err) {
+            console.error("Erro ao buscar itens emprestados:", err);
+            return [];
+        }
     }
 
     /**
