@@ -1,4 +1,4 @@
-import Item from "../models/itemModelModel.js";
+import Item from "../models/itemModel.js";
 import {
     ValidationError,
     NotFoundError,
@@ -86,7 +86,7 @@ class ItemService {
         const item = await Item.findById(id);
         if (!item) throw new NotFoundError("Item not found");
 
-        await item.remove();
+        await Item.findByIdAndDelete(id);
     }
 
     /**
@@ -99,7 +99,7 @@ class ItemService {
         const item = await Item.findById(id);
         if (!item) throw new NotFoundError("Item not found");
 
-        item.status = "borrowed";
+        item.status = "em uso";
         if (location) item.localizacao = location;
 
         await item.save();
@@ -116,7 +116,7 @@ class ItemService {
         const item = await Item.findById(id);
         if (!item) throw new NotFoundError("Item not found");
 
-        item.status = "available";
+        item.status = "disponível";
         if (location) item.localizacao = location;
 
         await item.save();
@@ -163,6 +163,20 @@ class ItemService {
      */
     async bulkUpdate(filter, update) {
         const result = await Item.updateMany(filter, update);
+        return { modifiedCount: result.modifiedCount };
+    }
+
+    /**
+     * Transfers all items from one model to another
+     * @param {String} oldModelId - Old model ID
+     * @param {String} newModelId - New model ID
+     * @returns {Promise<{modifiedCount: number}>}
+     */
+    async transferItemsModel(oldModelId, newModelId) {
+        const result = await Item.updateMany(
+            { modelo: oldModelId },
+            { $set: { modelo: newModelId } }
+        );
         return { modifiedCount: result.modifiedCount };
     }
 }

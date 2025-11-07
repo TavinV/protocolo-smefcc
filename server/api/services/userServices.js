@@ -147,6 +147,7 @@ class UserService {
      */
     async findByRFID(rfid) {
         const user = await User.findOne({ rfid });
+        if (!user) throw new NotFoundError("Usuário não encontrado com este RFID");
         return stripSensitiveInfo(user);
     }
 

@@ -2,7 +2,7 @@ import Joi from "joi";
 import validateCPF from "../util/validate-cpf.js";
 
 /**
- * Custom Joi validator for CPF using the provided validateCPF function.
+ * 🔹 Custom validator de CPF (usando a função utilitária existente)
  */
 const cpfValidator = (value, helpers) => {
     if (!validateCPF(value)) {
@@ -11,27 +11,26 @@ const cpfValidator = (value, helpers) => {
     return value;
 };
 
-const userSchema = Joi.object({
+/**
+ * 🔹 Schema base (todas as regras, mas sem obrigatoriedade)
+ */
+const baseUserSchema = Joi.object({
     nome: Joi.string()
         .min(3)
         .max(100)
-        .required()
         .messages({
             "string.base": "O nome deve ser um texto.",
             "string.empty": "O nome é obrigatório.",
             "string.min": "O nome deve ter pelo menos {#limit} caracteres.",
             "string.max": "O nome deve ter no máximo {#limit} caracteres.",
-            "any.required": "O nome é obrigatório.",
         }),
 
     cpf: Joi.string()
-        .required()
         .custom(cpfValidator, "Validador de CPF")
         .messages({
             "string.base": "O CPF deve ser um texto.",
             "string.empty": "O CPF é obrigatório.",
             "any.invalid": "CPF inválido.",
-            "any.required": "O CPF é obrigatório.",
         }),
 
     rfid: Joi.string()
@@ -63,19 +62,39 @@ const userSchema = Joi.object({
 });
 
 /**
- * Validate a user object using Joi.
- * @param {Object} data - Dados do usuário a validar
- * @returns {Object} - { error: [mensagens] | null, value }
+ * 🔹 Schema para criação — torna alguns campos obrigatórios
  */
-export const validateUser = (data) => {
-    const { error, value } = userSchema.validate(data, {
+export const createUserSchema = baseUserSchema.fork(
+    ["nome", "cpf"],
+    (schema) => schema.required()
+);
+
+/**
+ * 🔹 Schema para atualização — tudo opcional, mas requer pelo menos 1 campo
+ */
+export const updateUserSchema = baseUserSchema
+    .fork(Object.keys(baseUserSchema.describe().keys), (s) => s.optional())
+    .min(1)
+    .messages({
+        "object.min": "É necessário fornecer ao menos um campo para atualização.",
+    });
+
+/**
+ * 🔹 Função genérica de validação
+ * @param {Object} data - Dados a validar
+ * @param {Object} schema - Schema Joi (createUserSchema ou updateUserSchema)
+ */
+export const validateUser = (data, schema = createUserSchema) => {
+    const { error, value } = schema.validate(data, {
         abortEarly: false,
         stripUnknown: true,
     });
 
     if (error) {
-        const messages = error.details.map((d) => d.message);
-        return { error: messages };
+        return {
+            error: error.details.map((d) => d.message),
+            value: null,
+        };
     }
 
     return { value, error: null };

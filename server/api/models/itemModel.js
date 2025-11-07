@@ -5,12 +5,11 @@ const itemSchema = new mongoose.Schema({
     codigoInterno: {
         type: String,
         unique: true,
-        required: true,
     },
     modelo: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "ItemModel",
-        required: true,
+        required: false,
     },
     status: {
         type: String,

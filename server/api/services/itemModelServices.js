@@ -70,7 +70,7 @@ class ItemModelService {
         const itemModel = await ItemModelModel.findById(id);
         if (!itemModel) throw new NotFoundError("Modelo não encontrado");
 
-        await itemModel.remove();
+        await ItemModelModel.findByIdAndDelete(id);
     }
 }
 

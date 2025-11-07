@@ -1,0 +1,978 @@
+{
+	"info": {
+		"_postman_id": "bea2a734-f299-4117-89f5-3faad1e10556",
+		"name": "SMEFCC",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "39016017",
+		"_collection_link": "https://tcc333-4280.postman.co/workspace/SenaiId~6c00e7c3-7dda-4839-bffc-6a356b93e267/collection/39016017-bea2a734-f299-4117-89f5-3faad1e10556?action=share&source=collection_link&creator=39016017"
+	},
+	"item": [
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "Buscar Usuário logado",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{JWT}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseurl}}/users/me",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"users",
+								"me"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Buscar usuários (id)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{JWT}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseurl}}/users/6902b42a9de4fe5b4f024d5a",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"users",
+								"6902b42a9de4fe5b4f024d5a"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Buscar usuários",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{JWT}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseurl}}/users",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"users"
+							],
+							"query": [
+								{
+									"key": "cpf",
+									"value": "478.023.418-25",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Remover RFID de um usuário (id)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{JWT}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseurl}}/users/690d4fb489e3871f38df49ef/rfid",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"users",
+								"690d4fb489e3871f38df49ef",
+								"rfid"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Deletar usuário (id)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{JWT}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseurl}}/users/69078da7537f4b8752f39bbe",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"users",
+								"69078da7537f4b8752f39bbe"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Criar usuário",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{JWT}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-master-key",
+								"value": "8f3e2c4b-1a2b-4c5d-9e6f-7a8b9c0d1e2f",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"nome\": \"Lucas Gomes\",\r\n    \"cpf\": \"306.350.148-40\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseurl}}/users",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Adicionar RFID a um usuário (id)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{JWT}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"rfid\": \"cee7a78a26389d86b98d6d37a4165e0aadec1d6dc2f0ecf9a4aeb87c2e92fca9\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseurl}}/users/690d4fb489e3871f38df49ef/rfid",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"users",
+								"690d4fb489e3871f38df49ef",
+								"rfid"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Atualizar um usuário (id)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{JWT}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"nome\": \"Lucas do Espírito santo Gomes\",\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseurl}}/users/6902cbc748c9f826e83c5a65/",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"users",
+								"6902cbc748c9f826e83c5a65",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"cpf\": \"463.581.688-51\",\r\n    \"senha\": \"TccMeca@2025\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseurl}}/auth/login",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "ItemModels",
+			"item": [
+				{
+					"name": "Criar modelo de item",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{JWT}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"nome\": \"Furadeira Bosch GSR 120-LI\",\r\n    \"descricao\": \"Furadeira/parafusadeira sem fio 12V com duas velocidades e mandril de aperto rápido.\",\r\n    \"categoria\": \"ferramenta\",\r\n    \"fabricante\": \"Bosch\",\r\n    \"quantidadeTotal\": 10,\r\n    \"quantidadeDisponivel\": 8\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseurl}}/item-models",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"item-models"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Buscar modelos de item",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{JWT}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"nome\": \"Furadeira Bosch GSR 120-LI\",\r\n    \"descricao\": \"Furadeira/parafusadeira sem fio 12V com duas velocidades e mandril de aperto rápido.\",\r\n    \"categoria\": \"ferramenta\",\r\n    \"fabricante\": \"Bosch\",\r\n    \"quantidadeTotal\": 10,\r\n    \"quantidadeDisponivel\": 8\r\n}\r\n"
+						},
+						"url": {
+							"raw": "{{baseurl}}/item-models",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"item-models"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Buscar modelo de item (id)",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{JWT}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"nome\": \"Furadeira Bosch GSR 120-LI\",\r\n    \"descricao\": \"Furadeira/parafusadeira sem fio 12V com duas velocidades e mandril de aperto rápido.\",\r\n    \"categoria\": \"ferramenta\",\r\n    \"fabricante\": \"Bosch\",\r\n    \"quantidadeTotal\": 10,\r\n    \"quantidadeDisponivel\": 8\r\n}\r\n"
+						},
+						"url": {
+							"raw": "{{baseurl}}/item-models/690d3b21e147468cfbdf1c47",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"item-models",
+								"690d3b21e147468cfbdf1c47"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Atualizar modelo de item (id)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{JWT}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"nome\": \"Furadeira Bosch GSR 120-LI\",\r\n    \"descricao\": \"Furadeira/parafusadeira sem fio 12V com duas velocidades e mandril de aperto rápido.\",\r\n    \"categoria\": \"ferramenta\",\r\n    \"fabricante\": \"Bosch\",\r\n    \"quantidadeTotal\": 10,\r\n    \"quantidadeDisponivel\": 10\r\n}\r\n"
+						},
+						"url": {
+							"raw": "{{baseurl}}/item-models/6907860e3b83f24fc6a4f4bc",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"item-models",
+								"6907860e3b83f24fc6a4f4bc"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Deletar modelo de item (id)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{JWT}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseurl}}/item-models/6907860e3b83f24fc6a4f4bc",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"item-models",
+								"6907860e3b83f24fc6a4f4bc"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Itens",
+			"item": [
+				{
+					"name": "Criar item",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{JWT}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"modelo\": \"690d3b21e147468cfbdf1c47\",\r\n  \"status\": \"disponível\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseurl}}/items",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"items"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Buscar itens",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{JWT}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"nome\": \"Furadeira Bosch GSR 120-LI\",\r\n    \"descricao\": \"Furadeira/parafusadeira sem fio 12V com duas velocidades e mandril de aperto rápido.\",\r\n    \"categoria\": \"ferramenta\",\r\n    \"fabricante\": \"Bosch\",\r\n    \"quantidadeTotal\": 10,\r\n    \"quantidadeDisponivel\": 8\r\n}\r\n"
+						},
+						"url": {
+							"raw": "{{baseurl}}/items",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"items"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Deletar item (id)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{JWT}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseurl}}/items/690d3c4d698ef6c5c8e98daa",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"items",
+								"690d3c4d698ef6c5c8e98daa"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Buscar item (id)",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{JWT}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"nome\": \"Furadeira Bosch GSR 120-LI\",\r\n    \"descricao\": \"Furadeira/parafusadeira sem fio 12V com duas velocidades e mandril de aperto rápido.\",\r\n    \"categoria\": \"ferramenta\",\r\n    \"fabricante\": \"Bosch\",\r\n    \"quantidadeTotal\": 10,\r\n    \"quantidadeDisponivel\": 8\r\n}\r\n"
+						},
+						"url": {
+							"raw": "{{baseurl}}/items/690d3c4d698ef6c5c8e98daa",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"items",
+								"690d3c4d698ef6c5c8e98daa"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Transactions",
+			"item": [
+				{
+					"name": "Registrar transação",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{JWT}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "cee7a78a26389d86b98d6d37a4165e0aadec1d6dc2f0ecf9a4aeb87c2e92fca9",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"rfid\": \"cee7a78a26389d86b98d6d37a4165e0aadec1d6dc2f0ecf9a4aeb87c2e92fca9\",\r\n    \"item\": \"690d3c53698ef6c5c8e98daf\",\r\n    \"tipo\": \"retirada\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseurl}}/transactions",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"transactions"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Buscar transações",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{JWT}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "cee7a78a26389d86b98d6d37a4165e0aadec1d6dc2f0ecf9a4aeb87c2e92fca9",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"usuarioId\": \"690d4fb489e3871f38df49ef\",\r\n    \"item\": \"690d3c53698ef6c5c8e98daf\",\r\n    \"tipo\": \"devolucao\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseurl}}/transactions",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"transactions"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Buscar items emprestados",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{JWT}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "cee7a78a26389d86b98d6d37a4165e0aadec1d6dc2f0ecf9a4aeb87c2e92fca9",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"usuarioId\": \"690d4fb489e3871f38df49ef\",\r\n    \"item\": \"690d3c53698ef6c5c8e98daf\",\r\n    \"tipo\": \"devolucao\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseurl}}/transactions/borrowed",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"transactions",
+								"borrowed"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Buscar transação (id)",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{JWT}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "cee7a78a26389d86b98d6d37a4165e0aadec1d6dc2f0ecf9a4aeb87c2e92fca9",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"usuarioId\": \"690d4fb489e3871f38df49ef\",\r\n    \"item\": \"690d3c53698ef6c5c8e98daf\",\r\n    \"tipo\": \"devolucao\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseurl}}/transactions/690d51776316aba48a7ce20a",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"transactions",
+								"690d51776316aba48a7ce20a"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "RfidPending",
+			"item": [
+				{
+					"name": "Criar rfid",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{JWT}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "cee7a78a26389d86b98d6d37a4165e0aadec1d6dc2f0ecf9a4aeb87c2e92fca9",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"rfid\" : \"cee7a78a26389d86b98d6d37a4165e0aadec1d6dc2f0ecf9a4aeb87c2e92fca9\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseurl}}/rfid-pending",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"rfid-pending"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Buscar rfid's",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{JWT}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "cee7a78a26389d86b98d6d37a4165e0aadec1d6dc2f0ecf9a4aeb87c2e92fca9",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"usuarioId\": \"690d4fb489e3871f38df49ef\",\r\n    \"item\": \"690d3c53698ef6c5c8e98daf\",\r\n    \"tipo\": \"devolucao\"\r\n}\r\n"
+						},
+						"url": {
+							"raw": "{{baseurl}}/rfid-pending",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"rfid-pending"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Deletar rfid (id)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{JWT}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "cee7a78a26389d86b98d6d37a4165e0aadec1d6dc2f0ecf9a4aeb87c2e92fca9",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"usuarioId\": \"690d4fb489e3871f38df49ef\",\r\n    \"item\": \"690d3c53698ef6c5c8e98daf\",\r\n    \"tipo\": \"devolucao\"\r\n}\r\n"
+						},
+						"url": {
+							"raw": "{{baseurl}}/rfid-pending/690d5ad30ff870defaf47ec0",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"rfid-pending",
+								"690d5ad30ff870defaf47ec0"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseurl",
+			"value": ""
+		},
+		{
+			"key": "JWT",
+			"value": "",
+			"type": "default"
+		}
+	]
+}

@@ -10,20 +10,20 @@ class TransactionService {
     /**
      * Cria uma nova transação (retirada ou devolução)
      * @param {Object} data - Dados da transação
-     * @param {String} data.usuarioId - ID do usuário que realizou a ação
+     * @param {String} data.rfid - RFID do usuário que realizou a ação
      * @param {String} data.item - ID do item
      * @param {String} data.tipo - Tipo da transação: 'retirada' ou 'devolucao'
      * @param {String} [data.observacoes] - Observações opcionais
      * @returns {Promise<Transaction>} Transação criada
      */
     async create(data) {
-        const { usuarioId, item, tipo, observacoes } = data;
+        const { rfid, item, tipo, observacoes } = data;
 
         if (!["retirada", "devolucao"].includes(tipo)) {
             throw new ValidationError("Tipo de transação inválido");
         }
 
-        const user = await User.findById(usuarioId);
+        const user = await User.findOne({ rfid });
         if (!user) throw new NotFoundError("Usuário não encontrado");
 
         // Previne conflito: não permitir duas retiradas seguidas do mesmo item
@@ -171,6 +171,10 @@ class TransactionService {
         return await Transaction.find({ "usuario.id": usuarioId })
             .populate("item")
             .sort({ timestamp: -1 });
+    }
+
+    async deleteAll() {
+        await Transaction.deleteMany({});
     }
 
     /**

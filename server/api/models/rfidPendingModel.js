@@ -5,28 +5,22 @@ const rfidPendingSchema = new mongoose.Schema(
         rfid: {
             type: String,
             required: true,
-            unique: true,
-            trim: true,
-        },
-        sensorId: {
-            type: String,
-            required: true,
+            unique: true, // já cria índice único
             trim: true,
         },
         status: {
             type: String,
             enum: ["pendente", "usado", "expirado"],
             default: "pendente",
-        }
+        },
     },
     {
         timestamps: true, // cria createdAt e updatedAt automaticamente
     }
 );
 
-// Índices para buscas rápidas
-rfidPendingSchema.index({ rfid: 1 });
-rfidPendingSchema.index({ status: 1 });
+// Índice adicional (somente onde necessário)
+rfidPendingSchema.index({ status: 1 }); // mantém apenas este
 
 const RfidPending = mongoose.model("RfidPending", rfidPendingSchema);
 

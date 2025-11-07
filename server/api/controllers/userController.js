@@ -3,13 +3,12 @@ import userService from "../services/userServices.js";
 import ApiResponse from "../util/api-response.js";
 import handleControllerError from "../util/error-handler.js";
 
-import validateUser from "../validation/validateUser.js";
-import validateUserUpdate from "../validation/validateUserUpdate.js";
+import {validateUser, updateUserSchema, createUserSchema} from "../validation/validateUser.js";
 
 const userController = {
     async createUser(req, res) {
         try {
-            const { error, value } = validateUser(req.body);
+            const { error, value } = validateUser(req.body, createUserSchema);
 
             if (error) {
                 return ApiResponse.BADREQUEST(res, error[0]);
@@ -99,7 +98,7 @@ const userController = {
 
     async updateUser(req, res) {
         try {
-            const {error, value} = validateUserUpdate(req.body);
+            const {error, value} = validateUser(req.body, updateUserSchema);
 
             if (error) {
                 return ApiResponse.BADREQUEST(res, error[0]);
