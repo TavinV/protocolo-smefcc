@@ -147,38 +147,30 @@ class TransactionService {
      * @returns {Promise<Transaction[]>}
      */
     async getAllBorrowedItems() {
-        try {
-            const transactions = await Transaction.find().sort({ createdAt: -1 });
-    
-            // Cria um mapa com o último status de cada item
-            const lastTransactionByItem = new Map();
-    
-            for (const tx of transactions) {
-                const itemId = tx.item.toString();
-                if (!lastTransactionByItem.has(itemId)) {
-                    lastTransactionByItem.set(itemId, tx);
-                }
-            }
-    
-            // Filtra só as transações cuja última operação foi "retirada"
-            const borrowedItems = Array.from(lastTransactionByItem.values())
-                .filter(tx => tx.tipo === "retirada");
-    
-            return borrowedItems; // sempre um array
-            } catch (err) {
-                console.error("Erro ao buscar itens emprestados:", err);
-                return [];
-            }
-    }
+    try {
+        const transactions = await Transaction.find().sort({ createdAt: -1 });
 
-    
-            // ✅ sempre retorna array — mesmo se vazio ou com 1 item
-            return borrowedItems || [];
-        } catch (err) {
-            console.error("Erro ao buscar itens emprestados:", err);
-            return [];
+        // Cria um mapa com o último status de cada item
+        const lastTransactionByItem = new Map();
+
+        for (const tx of transactions) {
+            const itemId = tx.item.toString();
+            if (!lastTransactionByItem.has(itemId)) {
+                lastTransactionByItem.set(itemId, tx);
+            }
         }
+
+        // Filtra só as transações cuja última operação foi "retirada"
+        const borrowedItems = Array.from(lastTransactionByItem.values())
+            .filter(tx => tx.tipo === "retirada");
+
+        return borrowedItems; // sempre um array
+    } catch (err) {
+        console.error("Erro ao buscar itens emprestados:", err);
+        return [];
     }
+}
+
 
     /**
      * Retorna histórico de transações de um usuário
