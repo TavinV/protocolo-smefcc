@@ -26,7 +26,7 @@ app.use('/api/rfid-pending', rfidPendingRoutes);
 
 app.use(express.json());
 app.use(cors({
-    origin: 'http://localhost:5173',
+    origin: '*',
     methods: ['GET', 'POST', 'PATCH', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-API-KEY'],
     credentials: true
