@@ -7,6 +7,7 @@ import Layout from './components/layout/Layout';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Users from './pages/Users';
+import PendingRfids from './pages/RfidsPending';
 
 function App() {
   return (
@@ -38,6 +39,14 @@ function App() {
               <ProtectedRoute>
                 <Layout>
                   <Users />
+                </Layout>
+              </ProtectedRoute>
+            } />
+            
+            <Route path="/rfid-pendings" element={
+              <ProtectedRoute>
+                <Layout>
+                  <PendingRfids />
                 </Layout>
               </ProtectedRoute>
             } />
