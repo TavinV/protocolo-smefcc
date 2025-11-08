@@ -154,7 +154,8 @@ const Users = () => {
     // 🔗 Lógica corrigida de vincular RFID
     const handleRfidSelect = async (rfidValue) => {
         if (!selectedUser) {
-            toast.error('Selecione um usuário antes de vincular o RFID.');
+            formData.rfid = rfidValue;
+            setShowRfidModal(false)
             return;
         }
 

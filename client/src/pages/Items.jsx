@@ -108,6 +108,11 @@ const Items = () => {
         if (tab === 'list') resetForm();
     };
 
+    const statusClasses = {
+        "em uso": "bg-amber-200 text-amber-800",
+        "disponível": "bg-green-100 text-green-800"
+    }
+
     // Colunas da tabela para itens
     const itemColumns = [
         {
@@ -134,7 +139,7 @@ const Items = () => {
             header: 'Identificação',
             render: (item) => (
                 <div className="text-sm text-gray-900">
-                    {item.identificacao || (
+                    {item.codigoInterno || (
                         <span className="text-gray-400 italic">Sem identificação</span>
                     )}
                 </div>
@@ -144,8 +149,8 @@ const Items = () => {
             key: 'status',
             header: 'Status',
             render: (item) => (
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                    Disponível
+                <span className={"inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium " + statusClasses[item.status]}>
+                    {item.status === "em uso" ? "Emprestado" : "Disponível"}
                 </span>
             )
         }
