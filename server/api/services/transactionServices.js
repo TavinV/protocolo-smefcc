@@ -19,22 +19,21 @@ class TransactionService {
      * @returns {Promise<Transaction>} Transação criada
      */
     async create(data) {
-        const { rfid, item, tipo, observacoes } = data;
+        const { user, item, tipo, observacoes } = data;
 
         if (!["retirada", "devolucao"].includes(tipo)) {
             throw new ValidationError("Tipo de transação inválido");
         }
 
-        const user = await User.findOne({ rfid });
+        // user já vem do controller (garantido via RFID)
         if (!user) throw new NotFoundError("Usuário não encontrado");
 
-        // Previne conflito: não permitir duas retiradas seguidas do mesmo item
+        // Valida sequência
         const lastTx = await this.getLastTransactionByItem(item);
         if (lastTx && lastTx.tipo === "retirada" && tipo === "retirada") {
             throw new ConflictError("O item já está em uso e não foi devolvido");
         }
 
-        // Também não faz sentido devolver sem ter sido retirado antes
         if (!lastTx && tipo === "devolucao") {
             throw new ValidationError("Não é possível devolver um item nunca retirado");
         }
@@ -145,12 +144,11 @@ class TransactionService {
     }
 
     /**
- * Retorna todas as transações de itens atualmente emprestados
- * (última transação = "retirada", ainda não devolvidos)
- */
+     * Retorna todas as transações de itens atualmente emprestados
+     * (última transação = "retirada", ainda não devolvidos)
+     */
     async getAllBorrowedItems() {
         try {
-            // Agrupa por item e pega a última transação de cada um
             const lastTransactions = await Transaction.aggregate([
                 { $sort: { timestamp: -1 } },
                 {
@@ -163,17 +161,12 @@ class TransactionService {
                 { $match: { lastTipo: "retirada" } },
             ]);
 
-            const itemIds = lastTransactions.map(t => t._id);
-            if (!itemIds.length) return [];
+            const borrowedIds = lastTransactions.map(t => t.lastTransacao._id);
+            if (!borrowedIds.length) return [];
 
-            // Rebusca transações completas com populações
-            const transactions = await Transaction.find({
-                item: { $in: itemIds },
-                tipo: "retirada",
-            })
+            const transactions = await Transaction.find({ _id: { $in: borrowedIds } })
                 .populate("item")
-                .populate("usuario")
-                .sort({ timestamp: -1 });
+                .lean();
 
             return transactions;
         } catch (err) {

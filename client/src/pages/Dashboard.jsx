@@ -15,6 +15,8 @@ import RfidPendingList from '../components/dashboard/RfidPendingList';
 import RefreshButton from '../components/ui/RefreshButton';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 
+import toast, { Toaster } from 'react-hot-toast';
+
 const Dashboard = () => {
   const navigate = useNavigate();
   
@@ -42,6 +44,11 @@ const Dashboard = () => {
 
   // Carregar todos os dados do dashboard
   const loadDashboardData = async (isRefresh = false) => {
+    const notifyCopy = toast.success('Copiado para a área de transferência!', {
+      duration: 2000,
+      position: 'bottom-right',
+    });
+
     if (isRefresh) {
       setRefreshing(true);
     } else {
@@ -90,6 +97,10 @@ const Dashboard = () => {
     navigate('/rfid-pendings');
   };
 
+  const borrowedCount = Array.isArray(borrowedItems)
+    ? borrowedItems.flat().length
+    : 0;
+
   // Estatísticas principais
   const stats = [
     {
@@ -115,7 +126,7 @@ const Dashboard = () => {
     },
     {
       title: 'Itens Emprestados',
-      value: borrowedItems.length.toString(),
+      value: borrowedCount.toString(),
       icon: <FiRepeat className="text-2xl text-orange-500" />,
       color: 'bg-orange-50 border-orange-200',
       description: 'Em uso no momento'
@@ -143,7 +154,6 @@ const Dashboard = () => {
     );
   }
 
-  console.log(borrowedItems)
   return (
     <div className="space-y-6">
       {/* Header com título e botão de atualizar */}
@@ -265,6 +275,10 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
+      <Toaster
+        position="bottom-right"
+        reverseOrder={false}
+      />
     </div>
   );
 };
