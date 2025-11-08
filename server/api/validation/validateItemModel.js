@@ -20,7 +20,7 @@ const baseItemModelSchema = Joi.object({
         }),
 
     categoria: Joi.string()
-        .valid("ferramenta", "EPI", "outros")
+        .valid("ferramenta", "epi", "outros")
         .messages({
             "any.only": "Categoria deve ser 'ferramenta', 'EPI' ou 'outros'.",
         }),

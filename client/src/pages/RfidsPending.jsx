@@ -103,7 +103,7 @@ const RfidPendings = () => {
 
                     <div className="relative inline-block w-full max-w-md p-6 px-4 pt-5 pb-4 text-left align-bottom transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:align-middle sm:p-6">
                         <div className="flex items-start space-x-3">
-                            <div className="flex-shrink-0 p-2 rounded-full bg-red-100 text-red-600">
+                            <div className="shrink-0 p-2 rounded-full bg-red-100 text-red-600">
                                 <FiAlertTriangle className="w-5 h-5" />
                             </div>
                             <div className="flex-1">
@@ -165,7 +165,7 @@ const RfidPendings = () => {
             {rfidPendings.length > 0 && (
                 <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
                     <div className="flex items-start space-x-3">
-                        <FiAlertTriangle className="text-yellow-500 text-lg mt-0.5 flex-shrink-0" />
+                        <FiAlertTriangle className="text-yellow-500 text-lg mt-0.5 shrink-0" />
                         <div>
                             <p className="text-yellow-800 font-medium">
                                 {rfidPendings.length} RFID(s) pendente(s) de vinculação

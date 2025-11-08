@@ -34,7 +34,7 @@ const useItemModels = () => {
   const createModel = async (modelData) => {
     try {
       const data = await makeRequest('post', '/api/item-models', modelData);
-      await fetchItemModels(); // Atualiza a lista
+      await fetchItemModels();
       return data;
     } catch (err) {
       throw err;
@@ -45,7 +45,7 @@ const useItemModels = () => {
   const updateModel = async (id, modelData) => {
     try {
       const data = await makeRequest('patch', `/api/item-models/${id}`, modelData);
-      await fetchItemModels(); // Atualiza a lista
+      await fetchItemModels();
       return data;
     } catch (err) {
       throw err;
@@ -56,7 +56,7 @@ const useItemModels = () => {
   const deleteModel = async (id) => {
     try {
       const data = await makeRequest('delete', `/api/item-models/${id}`);
-      await fetchItemModels(); // Atualiza a lista
+      await fetchItemModels();
       return data;
     } catch (err) {
       throw err;

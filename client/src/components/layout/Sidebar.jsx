@@ -56,7 +56,7 @@ const Sidebar = () => {
 
         <button
           onClick={toggleSidebar}
-          className={"text-gray-300 bg-gray-800 hover:text-white p-1 rounded-lg  transition-colors absolute sm:right-[-15px] " + (isCollapsed ? 'right-[-15px]' : 'right-4')}
+          className={"text-gray-300 bg-gray-800 hover:text-white p-1 rounded-lg  transition-colors absolute sm:right-[-10px] " + (isCollapsed ? 'right-[-15px]' : 'right-4')}
         >
           {isCollapsed ? <FiChevronRight /> : <FiChevronLeft />}
         </button>

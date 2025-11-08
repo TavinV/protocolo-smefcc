@@ -45,9 +45,7 @@ const useTransactions = () => {
   const fetchBorrowedItems = async () => {
     try {
       const data = await makeRequest('get', '/api/transactions/borrowed');
-      const borrowed = [data.data]
-      setBorrowedItems(borrowed || []);
-
+      setBorrowedItems(data.data || []);
       return data;
     } catch (err) {
       throw err;

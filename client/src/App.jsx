@@ -8,6 +8,9 @@ import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Users from './pages/Users';
 import PendingRfids from './pages/RfidsPending';
+import Items from './pages/Items';
+import ItemModels from './pages/ItemModels';
+import Transactions from './pages/Transactions';
 
 function App() {
   return (
@@ -54,12 +57,23 @@ function App() {
             <Route path="/items" element={
               <ProtectedRoute>
                 <Layout>
-                  <div className="max-w-4xl mx-auto">
-                    <div className="bg-white rounded-lg shadow-md p-6">
-                      <h1 className="text-2xl font-bold text-gray-800 mb-4">🔩 Gerenciar Itens</h1>
-                      <p className="text-gray-600">Página em desenvolvimento - Em breve</p>
-                    </div>
-                  </div>
+                  <Items />
+                </Layout>
+              </ProtectedRoute>
+            } />
+
+            <Route path="/item-models" element={
+              <ProtectedRoute>
+                <Layout>
+                  <ItemModels />
+                </Layout>
+              </ProtectedRoute>
+            } />
+
+            <Route path="/transactions" element={
+              <ProtectedRoute>
+                <Layout>
+                  <Transactions />
                 </Layout>
               </ProtectedRoute>
             } />

@@ -34,7 +34,7 @@ const useItems = () => {
   const createItem = async (itemData) => {
     try {
       const data = await makeRequest('post', '/api/items', itemData);
-      await fetchItems(); // Atualiza a lista
+      await fetchItems();
       return data;
     } catch (err) {
       throw err;
@@ -45,7 +45,7 @@ const useItems = () => {
   const deleteItem = async (id) => {
     try {
       const data = await makeRequest('delete', `/api/items/${id}`);
-      await fetchItems(); // Atualiza a lista
+      await fetchItems();
       return data;
     } catch (err) {
       throw err;
