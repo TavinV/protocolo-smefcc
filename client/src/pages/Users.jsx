@@ -1,22 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { FiUserPlus, FiUsers } from 'react-icons/fi';
+import { FiUsers } from 'react-icons/fi';
 import { Toaster, toast } from 'react-hot-toast';
-
-// Hooks
 import useUsers from '../hooks/useUsers';
 import useRfidPending from '../hooks/useRfidPending';
 
 // Componentes
-import UserTable from '../components/users/UserTable';
+import UserTabs from '../components/users/UserTabs';
+import UserList from '../components/users/UserList';
 import UserForm from '../components/users/UserForm';
-import RfidSelector from '../components/users/RfidSelector';
-import Modal from '../components/ui/Modal';
-import ConfirmDialog from '../components/ui/ConfirmDialog';
-import SearchBar from '../components/ui/SearchBar';
-import ActionButtons from '../components/ui/ActionButtons';
+import RfidModal from '../components/users/RfidModal';
+import DeleteConfirmModal from '../components/users/DeleteConfirmModal';
 
 const Users = () => {
-    // Hooks
     const {
         users,
         loading,
@@ -24,31 +19,28 @@ const Users = () => {
         createUser,
         updateUser,
         deleteUser,
-        linkRfid,
         unlinkRfid,
+        linkRfid,
         clearError
     } = useUsers();
 
-    const {
-        rfidPendings,
-        fetchRfidPendings
-    } = useRfidPending();
+    const { rfidPendings, fetchRfidPendings, deleteRfidPending } = useRfidPending();
 
-    // Estados
+    const [activeTab, setActiveTab] = useState('list');
     const [searchTerm, setSearchTerm] = useState('');
-    const [showUserForm, setShowUserForm] = useState(false);
-    const [showRfidSelector, setShowRfidSelector] = useState(false);
-    const [showConfirmDialog, setShowConfirmDialog] = useState(false);
     const [selectedUser, setSelectedUser] = useState(null);
-    const [actionType, setActionType] = useState(''); // 'create', 'edit', 'delete', 'linkRfid', 'unlinkRfid'
+    const [showRfidModal, setShowRfidModal] = useState(false);
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [adminKey, setAdminKey] = useState('');
 
-    // Filtrar usuários baseado na pesquisa
-    const filteredUsers = users.filter(user =>
-        user.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.cpf.includes(searchTerm.replace(/\D/g, ''))
-    );
+    const [formData, setFormData] = useState({
+        nome: '',
+        cpf: '',
+        role: 'funcionario',
+        rfid: ''
+    });
+    const [errors, setErrors] = useState({});
 
-    // Limpar erros quando fechar modais
     useEffect(() => {
         if (error) {
             toast.error(error);
@@ -56,124 +48,148 @@ const Users = () => {
         }
     }, [error, clearError]);
 
-    // Handlers
-    const handleCreateUser = () => {
-        setSelectedUser(null);
-        setActionType('create');
-        setShowUserForm(true);
+    // 🔎 Filtragem de usuários
+    const filteredUsers = users.filter(user =>
+        user.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.cpf.includes(searchTerm.replace(/\D/g, ''))
+    );
+
+    const formatCPF = (value) => {
+        const numbers = value.replace(/\D/g, '');
+        return numbers
+            .replace(/(\d{3})(\d)/, '$1.$2')
+            .replace(/(\d{3})(\d)/, '$1.$2')
+            .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
     };
 
-    const handleEditUser = (user) => {
-        setSelectedUser(user);
-        setActionType('edit');
-        setShowUserForm(true);
+    // 📋 Formulário
+    const handleInputChange = (field, value) => {
+        if (field === 'cpf') value = formatCPF(value);
+        setFormData(prev => ({ ...prev, [field]: value }));
+        if (errors[field]) setErrors(prev => ({ ...prev, [field]: '' }));
     };
 
-    const handleDeleteUser = (user) => {
-        setSelectedUser(user);
-        setActionType('delete');
-        setShowConfirmDialog(true);
+    const validateForm = () => {
+        const newErrors = {};
+        if (!formData.nome.trim()) newErrors.nome = 'Nome é obrigatório';
+        if (!formData.cpf.trim()) newErrors.cpf = 'CPF é obrigatório';
+        else if (formData.cpf.replace(/\D/g, '').length !== 11)
+            newErrors.cpf = 'CPF deve ter 11 dígitos';
+        if (!formData.rfid.trim()) newErrors.rfid = 'RFID é obrigatório';
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
     };
 
-    const handleLinkRfid = (user) => {
-        setSelectedUser(user);
-        setActionType('linkRfid');
-        setShowRfidSelector(true);
-    };
+    const handleSubmit = async () => {
+        if (!validateForm()) return;
 
-    const handleUnlinkRfid = (user) => {
-        setSelectedUser(user);
-        setActionType('unlinkRfid');
-        setShowConfirmDialog(true);
-    };
-
-    const handleConfirmAction = async () => {
         try {
-            switch (actionType) {
-                case 'delete':
-                    await deleteUser(selectedUser._id);
-                    toast.success('Usuário excluído com sucesso!');
-                    break;
+            const userData = {
+                nome: formData.nome.trim(),
+                cpf: formData.cpf.replace(/\D/g, ''),
+                role: formData.role,
+                rfid: formData.rfid.trim()
+            };
 
-                case 'unlinkRfid':
-                    await unlinkRfid(selectedUser._id);
-                    toast.success('RFID desvinculado com sucesso!');
-                    break;
-
-                default:
-                    break;
-            }
-        } catch (err) {
-            toast.error('Erro ao executar ação');
-        } finally {
-            setShowConfirmDialog(false);
-            setSelectedUser(null);
-            setActionType('');
-        }
-    };
-
-    const handleUserSubmit = async (userData) => {
-        try {
-            if (actionType === 'create') {
-                await createUser(userData);
-                toast.success('Usuário cadastrado com sucesso!');
-            } else if (actionType === 'edit') {
+            if (selectedUser) {
                 await updateUser(selectedUser._id, userData);
                 toast.success('Usuário atualizado com sucesso!');
+            } else {
+                await createUser(userData);
+                toast.success('Usuário cadastrado com sucesso!');
             }
-            setShowUserForm(false);
+
+            resetForm();
+            setActiveTab('list');
+        } catch { }
+    };
+
+    const resetForm = () => {
+        setFormData({ nome: '', cpf: '', role: 'funcionario', rfid: '' });
+        setSelectedUser(null);
+        setErrors({});
+    };
+
+    // ⚙️ Ações
+    const handleEdit = (user) => {
+        setFormData({
+            nome: user.nome,
+            cpf: user.cpf,
+            role: user.role,
+            rfid: user.rfid || ''
+        });
+        setSelectedUser(user);
+        setActiveTab('form');
+    };
+
+    const handleDelete = (user) => {
+        setSelectedUser(user);
+        setShowDeleteConfirm(true);
+    };
+
+    const handleUnlinkRfid = async (user) => {
+        try {
+            await unlinkRfid(user._id);
+            toast.success('RFID desvinculado com sucesso!');
+        } catch { }
+    };
+
+    const confirmDelete = async () => {
+        if (!selectedUser) return;
+
+        if (selectedUser.role === 'admin') {
+            toast.error('Chave administrativa incorreta!');
+            return;
+        }
+
+        try {
+            await deleteUser(selectedUser._id);
+            toast.success('Usuário excluído com sucesso!');
+            setShowDeleteConfirm(false);
             setSelectedUser(null);
-            setActionType('');
+            setAdminKey('');
+        } catch { }
+    };
+
+    // 🔗 Lógica corrigida de vincular RFID
+    const handleRfidSelect = async (rfidValue) => {
+        if (!selectedUser) {
+            toast.error('Selecione um usuário antes de vincular o RFID.');
+            return;
+        }
+
+        try {
+            await linkRfid(selectedUser._id, { rfid: rfidValue });
+            await deleteRfidPendingByValue(rfidValue);
+            toast.success('RFID vinculado com sucesso!');
+            await fetchRfidPendings(); // atualiza a lista
         } catch (err) {
-            // Erro é tratado pelo hook e exibido no useEffect
+            toast.error('Erro ao vincular RFID.');
+        } finally {
+            setShowRfidModal(false);
         }
     };
 
-    const handleRfidSelect = async (rfid) => {
-        if (actionType === 'linkRfid' && selectedUser) {
-            try {
-                await linkRfid(selectedUser._id, { rfid });
-                toast.success('RFID vinculado com sucesso!');
-                setShowRfidSelector(false);
-                setSelectedUser(null);
-                setActionType('');
-            } catch (err) {
-                // Erro é tratado pelo hook
-            }
+    // 🧹 Remover RFID pendente pelo valor
+    const deleteRfidPendingByValue = async (rfidValue) => {
+        const found = rfidPendings.find(p => p.rfid === rfidValue);
+        if (found) {
+            await deleteRfidPending(found._id);
         }
     };
 
-    const getConfirmDialogConfig = () => {
-        switch (actionType) {
-            case 'delete':
-                return {
-                    title: 'Excluir Usuário',
-                    message: `Tem certeza que deseja excluir o usuário "${selectedUser?.nome}"? Esta ação não pode ser desfeita.`,
-                    confirmText: 'Excluir',
-                    type: 'danger'
-                };
+    const handleShowRfidModal = (user) => {
+        setSelectedUser(user);
+        setShowRfidModal(true);
+    };
 
-            case 'unlinkRfid':
-                return {
-                    title: 'Desvincular RFID',
-                    message: `Tem certeza que deseja desvincular o RFID do usuário "${selectedUser?.nome}"?`,
-                    confirmText: 'Desvincular',
-                    type: 'warning'
-                };
-
-            default:
-                return {
-                    title: 'Confirmar Ação',
-                    message: 'Tem certeza que deseja executar esta ação?',
-                    confirmText: 'Confirmar',
-                    type: 'warning'
-                };
-        }
+    const handleTabChange = (tab) => {
+        setActiveTab(tab);
+        if (tab === 'list') resetForm();
     };
 
     return (
         <div className="space-y-6">
-            {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                     <h1 className="text-2xl font-bold text-gray-800 flex items-center">
@@ -184,97 +200,64 @@ const Users = () => {
                         Cadastre e gerencie os usuários do sistema
                     </p>
                 </div>
-
-                <ActionButtons
-                    onAdd={handleCreateUser}
-                    addLabel="Novo Usuário"
-                    showEdit={false}
-                    showDelete={false}
-                />
             </div>
 
-            {/* Search Bar */}
-            <div className="bg-white rounded-lg border border-gray-300 p-4">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                    <div className="flex-1">
-                        <SearchBar
-                            value={searchTerm}
-                            onChange={setSearchTerm}
-                            onClear={() => setSearchTerm('')}
-                            placeholder="Pesquisar por nome ou CPF..."
-                        />
-                    </div>
+            <div className="bg-white rounded-lg border border-gray-300 shadow-sm">
+                <UserTabs
+                    activeTab={activeTab}
+                    onTabChange={handleTabChange}
+                    usersCount={users.length}
+                    isEditing={!!selectedUser}
+                />
 
-                    <div className="text-sm text-gray-500">
-                        {filteredUsers.length} de {users.length} usuários
-                    </div>
+                <div className="p-6">
+                    {activeTab === 'list' ? (
+                        <UserList
+                            searchTerm={searchTerm}
+                            onSearchChange={setSearchTerm}
+                            users={users}
+                            filteredUsers={filteredUsers}
+                            loading={loading}
+                            onEdit={handleEdit}
+                            onDelete={handleDelete}
+                            onShowRfidModal={handleShowRfidModal}
+                            onUnlinkRfid={handleUnlinkRfid}
+                        />
+                    ) : (
+                        <UserForm
+                            formData={formData}
+                            errors={errors}
+                            isEditing={!!selectedUser}
+                            loading={loading}
+                            onSubmit={handleSubmit}
+                            onCancel={() => handleTabChange('list')}
+                            onInputChange={handleInputChange}
+                            onShowRfidModal={() => handleShowRfidModal(selectedUser)}
+                        />
+                    )}
                 </div>
             </div>
 
-            {/* Users Table */}
-            <UserTable
-                users={filteredUsers}
-                loading={loading}
-                onEdit={handleEditUser}
-                onDelete={handleDeleteUser}
-                onLinkRfid={handleLinkRfid}
-                onUnlinkRfid={handleUnlinkRfid}
-            />
-
-            {/* User Form Modal */}
-            <Modal
-                isOpen={showUserForm}
-                onClose={() => {
-                    setShowUserForm(false);
-                    setSelectedUser(null);
-                    setActionType('');
-                }}
-                title={actionType === 'edit' ? 'Editar Usuário' : 'Cadastrar Usuário'}
-                size="large"
-            >
-                <UserForm
-                    user={selectedUser}
-                    onSubmit={handleUserSubmit}
-                    onCancel={() => {
-                        setShowUserForm(false);
-                        setSelectedUser(null);
-                        setActionType('');
-                    }}
-                    loading={loading}
-                    onOpenRfidSelector={() => setShowRfidSelector(true)}
-                />
-            </Modal>
-
-            {/* RFID Selector Modal */}
-            <RfidSelector
-                isOpen={showRfidSelector}
-                onClose={() => {
-                    setShowRfidSelector(false);
-                    setSelectedUser(null);
-                    setActionType('');
-                }}
+            <RfidModal
+                isOpen={showRfidModal}
+                onClose={() => setShowRfidModal(false)}
                 rfidPendings={rfidPendings}
                 onSelectRfid={handleRfidSelect}
-                loading={false}
             />
 
-            {/* Confirm Dialog */}
-            <ConfirmDialog
-                isOpen={showConfirmDialog}
+            <DeleteConfirmModal
+                isOpen={showDeleteConfirm}
                 onClose={() => {
-                    setShowConfirmDialog(false);
-                    setSelectedUser(null);
-                    setActionType('');
+                    setShowDeleteConfirm(false);
+                    setAdminKey('');
                 }}
-                onConfirm={handleConfirmAction}
-                {...getConfirmDialogConfig()}
+                onConfirm={confirmDelete}
+                selectedUser={selectedUser}
+                adminKey={adminKey}
+                onAdminKeyChange={setAdminKey}
             />
 
-            {/* Toast Notifications */}
-            <Toaster
-                position="bottom-right"
-                reverseOrder={false}
-            />
+            <Toaster position="bottom-right" />
         </div>
     );
 };

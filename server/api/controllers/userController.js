@@ -1,5 +1,5 @@
 import userService from "../services/userServices.js";
-
+import rfidPendingService from "../services/rfidPendingServices.js";
 import ApiResponse from "../util/api-response.js";
 import handleControllerError from "../util/error-handler.js";
 
@@ -24,6 +24,13 @@ const userController = {
                 const isMasterKeyValid = req.headers['x-master-key'] === process.env.MASTER_KEY;
                 if (!isMasterKeyValid) {
                     return ApiResponse.FORBIDDEN(res, "Não é permitido criar usuários com o cargo de admin");
+                }
+            }
+
+            if (req.body.rfid) {
+                const existingPendingRfid = await rfidPendingService.readOne({ rfid: req.body.rfid });
+                if (existingPendingRfid) {
+                    await rfidPendingService.remove(existingPendingRfid._id);
                 }
             }
 
@@ -79,6 +86,12 @@ const userController = {
         try {
             const userId = req.params.id;
             const { rfid } = req.body;
+
+            const existingPendingRfid = await rfidPendingService.readOne({ rfid });
+            if (existingPendingRfid) {
+                await rfidPendingService.remove(existingPendingRfid._id);
+            }
+
             const user = await userService.attachRFID(userId, rfid);
             return ApiResponse.OK(res, `RFID ${rfid} associado com sucesso`, user);
         } catch (error) {

@@ -1,265 +1,141 @@
-import React, { useState, useEffect } from 'react';
-import { FiUser, FiLock, FiRadio, FiCopy } from 'react-icons/fi';
-import InputField from '../forms/InputField';
-import SelectField from '../forms/SelectField';
+import React from 'react';
+import { FiUser, FiRadio, FiSave, FiX } from 'react-icons/fi';
 
 const UserForm = ({
-    user = null,
+    formData,
+    errors,
+    isEditing,
+    loading,
     onSubmit,
     onCancel,
-    loading = false,
-    onOpenRfidSelector
+    onInputChange,
+    onShowRfidModal
 }) => {
-    const [formData, setFormData] = useState({
-        nome: '',
-        cpf: '',
-        senha: '',
-        confirmarSenha: '',
-        role: 'funcionario',
-        rfid: ''
-    });
-
-    const [errors, setErrors] = useState({});
-    const [showPassword, setShowPassword] = useState(false);
-
-    // Preencher form se estiver editando
-    useEffect(() => {
-        if (user) {
-            setFormData({
-                nome: user.nome || '',
-                cpf: user.cpf || '',
-                senha: '',
-                confirmarSenha: '',
-                role: user.role || 'funcionario',
-                rfid: user.rfid || ''
-            });
-        }
-    }, [user]);
-
-    const formatCPF = (value) => {
-        const numbers = value.replace(/\D/g, '');
-        if (numbers.length <= 11) {
-            return numbers
-                .replace(/(\d{3})(\d)/, '$1.$2')
-                .replace(/(\d{3})(\d)/, '$1.$2')
-                .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
-        }
-        return numbers.substring(0, 14);
-    };
-
-    const handleChange = (field, value) => {
-        if (field === 'cpf') {
-            value = formatCPF(value);
-        }
-
-        setFormData(prev => ({
-            ...prev,
-            [field]: value
-        }));
-
-        // Limpar erro do campo quando usuário começar a digitar
-        if (errors[field]) {
-            setErrors(prev => ({
-                ...prev,
-                [field]: ''
-            }));
-        }
-    };
-
-    const validateForm = () => {
-        const newErrors = {};
-
-        if (!formData.nome.trim()) {
-            newErrors.nome = 'Nome é obrigatório';
-        }
-
-        if (!formData.cpf.trim()) {
-            newErrors.cpf = 'CPF é obrigatório';
-        } else if (formData.cpf.replace(/\D/g, '').length !== 11) {
-            newErrors.cpf = 'CPF deve ter 11 dígitos';
-        }
-
-        if (!user && !formData.senha) {
-            newErrors.senha = 'Senha é obrigatória';
-        } else if (formData.senha && formData.senha.length < 6) {
-            newErrors.senha = 'Senha deve ter pelo menos 6 caracteres';
-        }
-
-        if (formData.senha !== formData.confirmarSenha) {
-            newErrors.confirmarSenha = 'As senhas não coincidem';
-        }
-
-        setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
-    };
-
     const handleSubmit = (e) => {
         e.preventDefault();
-
-        if (validateForm()) {
-            // Preparar dados para envio
-            const submitData = {
-                nome: formData.nome.trim(),
-                cpf: formData.cpf.replace(/\D/g, ''),
-                role: formData.role
-            };
-
-            // Incluir senha apenas se for nova ou estiver criando
-            if (formData.senha) {
-                submitData.senha = formData.senha;
-            }
-
-            // Incluir RFID apenas se estiver preenchido
-            if (formData.rfid.trim()) {
-                submitData.rfid = formData.rfid.trim();
-            }
-
-            onSubmit(submitData);
-        }
+        onSubmit();
     };
-
-    const handleRfidSelect = (rfid) => {
-        setFormData(prev => ({
-            ...prev,
-            rfid
-        }));
-    };
-
-    const roleOptions = [
-        { value: 'funcionario', label: 'Funcionário' },
-        { value: 'admin', label: 'Administrador' }
-    ];
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <InputField
-                    label="Nome completo"
-                    value={formData.nome}
-                    onChange={(value) => handleChange('nome', value)}
-                    placeholder="Digite o nome completo"
-                    error={errors.nome}
-                    required
-                    icon={FiUser}
-                />
-
-                <InputField
-                    label="CPF"
-                    value={formData.cpf}
-                    onChange={(value) => handleChange('cpf', value)}
-                    placeholder="000.000.000-00"
-                    error={errors.cpf}
-                    required
-                />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <InputField
-                    label={user ? "Nova senha (opcional)" : "Senha"}
-                    type={showPassword ? "text" : "password"}
-                    value={formData.senha}
-                    onChange={(value) => handleChange('senha', value)}
-                    placeholder={user ? "Deixe em branco para manter atual" : "Digite a senha"}
-                    error={errors.senha}
-                    required={!user}
-                    icon={FiLock}
-                    helperText="Mínimo 6 caracteres"
-                />
-
-                <InputField
-                    label="Confirmar senha"
-                    type={showPassword ? "text" : "password"}
-                    value={formData.confirmarSenha}
-                    onChange={(value) => handleChange('confirmarSenha', value)}
-                    placeholder="Confirme a senha"
-                    error={errors.confirmarSenha}
-                    required={!user}
-                />
-            </div>
-
-            <div className="flex items-center space-x-2">
-                <input
-                    type="checkbox"
-                    id="showPassword"
-                    checked={showPassword}
-                    onChange={(e) => setShowPassword(e.target.checked)}
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                />
-                <label htmlFor="showPassword" className="text-sm text-gray-700">
-                    Mostrar senhas
-                </label>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <SelectField
-                    label="Tipo de usuário"
-                    value={formData.role}
-                    onChange={(value) => handleChange('role', value)}
-                    options={roleOptions}
-                    required
-                />
-
-                <div className="space-y-2">
-                    <label className="block text-sm font-medium text-gray-700">
-                        RFID (opcional)
-                    </label>
-                    <div className="flex space-x-2">
-                        <InputField
-                            value={formData.rfid}
-                            onChange={(value) => handleChange('rfid', value)}
-                            placeholder="Código do RFID"
-                            showCopyButton={!!formData.rfid}
-                            onCopy={async (value) => {
-                                try {
-                                    await navigator.clipboard.writeText(value);
-                                } catch (err) {
-                                    console.error('Falha ao copiar RFID:', err);
-                                }
-                            }}
-                            className="flex-1"
+        <div className="max-w-2xl">
+            <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Nome */}
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                            <FiUser className="inline mr-2 h-4 w-4" />
+                            Nome completo <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                            type="text"
+                            value={formData.nome}
+                            onChange={(e) => onInputChange('nome', e.target.value)}
+                            placeholder="Digite o nome completo"
+                            className={`block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm ${errors.nome ? 'border-red-300' : 'border-gray-300'
+                                }`}
                         />
-
-                        <button
-                            type="button"
-                            onClick={onOpenRfidSelector}
-                            className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                        >
-                            <FiRadio className="h-4 w-4 mr-2" />
-                            RFIDs
-                        </button>
+                        {errors.nome && (
+                            <p className="mt-1 text-sm text-red-600">{errors.nome}</p>
+                        )}
                     </div>
-                    <p className="text-xs text-gray-500">
-                        Vincule um RFID pendente ou cole manualmente o código
-                    </p>
+
+                    {/* CPF */}
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                            CPF <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                            type="text"
+                            value={formData.cpf}
+                            onChange={(e) => onInputChange('cpf', e.target.value)}
+                            placeholder="000.000.000-00"
+                            maxLength={14}
+                            className={`block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm ${errors.cpf ? 'border-red-300' : 'border-gray-300'
+                                }`}
+                        />
+                        {errors.cpf && (
+                            <p className="mt-1 text-sm text-red-600">{errors.cpf}</p>
+                        )}
+                    </div>
                 </div>
-            </div>
 
-            <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200">
-                <button
-                    type="button"
-                    onClick={onCancel}
-                    disabled={loading}
-                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
-                >
-                    Cancelar
-                </button>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Tipo de Usuário */}
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Tipo de usuário
+                        </label>
+                        <select
+                            value={formData.role}
+                            disabled={true}
+                            onChange={(e) => onInputChange('role', e.target.value)}
+                            className="block cursor-not-allowed text-gray-500 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                        >
+                            <option value="funcionario">Funcionário</option>
+                            <option value="admin">Administrador</option>
+                        </select>
+                    </div>
 
-                <button
-                    type="submit"
-                    disabled={loading}
-                    className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
-                >
-                    {loading ? (
-                        <div className="flex items-center">
-                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                            {user ? 'Atualizando...' : 'Cadastrando...'}
+                    {/* RFID */}
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                            <FiRadio className="inline mr-2 h-4 w-4" />
+                            RFID <span className="text-red-500">*</span>
+                        </label>
+                        <div className="flex space-x-2 flex-col sm:flex-row sm:space-x-3">
+                            <input
+                                type="text"
+                                value={formData.rfid}
+                                onChange={(e) => onInputChange('rfid', e.target.value)}
+                                placeholder="Código do RFID"
+                                className={`block flex-1 px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm ${errors.rfid ? 'border-red-300' : 'border-gray-300'
+                                    }`}
+                            />
+
+                            <button
+                                type="button"
+                                onClick={onShowRfidModal}
+                                className="inline-flex mt-4 sm:mt-0 w-[30%] items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                            >
+                                <FiRadio className="h-4 w-4 mr-2" />
+                                RFIDs
+                            </button>
                         </div>
-                    ) : (
-                        user ? 'Atualizar Usuário' : 'Cadastrar Usuário'
-                    )}
-                </button>
-            </div>
-        </form>
+                        {errors.rfid && (
+                            <p className="mt-1 text-sm text-red-600">{errors.rfid}</p>
+                        )}
+                        <p className="text-xs text-gray-500 mt-1">
+                            Selecione um RFID pendente ou cole manualmente o código
+                        </p>
+                    </div>
+                </div>
+
+                <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200">
+                    <button
+                        type="button"
+                        onClick={onCancel}
+                        disabled={loading}
+                        className="flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+                    >
+                        <FiX className="mr-2 h-4 w-4" />
+                        Cancelar
+                    </button>
+
+                    <button
+                        type="submit"
+                        disabled={loading}
+                        className="flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+                    >
+                        <FiSave className="mr-2 h-4 w-4" />
+                        {loading ? (
+                            <span>{isEditing ? 'Atualizando...' : 'Cadastrando...'}</span>
+                        ) : (
+                            <span>{isEditing ? 'Atualizar Usuário' : 'Cadastrar Usuário'}</span>
+                        )}
+                    </button>
+                </div>
+            </form>
+        </div>
     );
 };
 
