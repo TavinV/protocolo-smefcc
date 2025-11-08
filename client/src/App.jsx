@@ -3,8 +3,10 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/layout/ProtectedRoute';
 import Layout from './components/layout/Layout';
+
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
+import Users from './pages/Users';
 
 function App() {
   return (
@@ -35,12 +37,7 @@ function App() {
             <Route path="/users" element={
               <ProtectedRoute>
                 <Layout>
-                  <div className="max-w-4xl mx-auto">
-                    <div className="bg-white rounded-lg shadow-md p-6">
-                      <h1 className="text-2xl font-bold text-gray-800 mb-4">👥 Gerenciar Usuários</h1>
-                      <p className="text-gray-600">Página em desenvolvimento - Em breve</p>
-                    </div>
-                  </div>
+                  <Users />
                 </Layout>
               </ProtectedRoute>
             } />

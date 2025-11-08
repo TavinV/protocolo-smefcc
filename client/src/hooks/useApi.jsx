@@ -10,11 +10,17 @@ const useApi = () => {
     setError(null);
 
     try {
-      const response = await axiosInstance({
+      const config = {
         method,
         url,
-        data,
-      });
+      };
+
+      // Só envia corpo se for POST ou PATCH
+      if (data && !['get', 'delete'].includes(method.toLowerCase())) {
+        config.data = data;
+      }
+
+      const response = await axiosInstance(config);
       return response.data;
     } catch (err) {
       const errorMessage = err.response?.data?.message || 'Erro na requisição';

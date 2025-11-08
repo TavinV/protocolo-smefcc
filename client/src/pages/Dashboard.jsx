@@ -12,30 +12,30 @@ import useRfidPending from '../hooks/useRfidPending';
 import StatsGrid from '../components/dashboard/StatsGrid';
 import RecentTransactions from '../components/dashboard/RecentTransactions';
 import RfidPendingList from '../components/dashboard/RfidPendingList';
+import DashboardSkeleton from '../components/dashboard/DashboardSkeleton';
 import RefreshButton from '../components/ui/RefreshButton';
-import LoadingSpinner from '../components/ui/LoadingSpinner';
 
 import toast, { Toaster } from 'react-hot-toast';
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  
+
   // Hooks para dados
   const { users, fetchUsers, loading: usersLoading } = useUsers();
   const { itemModels, fetchItemModels, loading: modelsLoading } = useItemModels();
   const { items, fetchItems, loading: itemsLoading } = useItems();
-  const { 
-    transactions, 
-    borrowedItems, 
-    fetchTransactions, 
-    fetchBorrowedItems, 
-    loading: transactionsLoading 
+  const {
+    transactions,
+    borrowedItems,
+    fetchTransactions,
+    fetchBorrowedItems,
+    loading: transactionsLoading
   } = useTransactions();
-  const { 
-    rfidPendings, 
-    fetchRfidPendings, 
-    deleteRfidPending, 
-    loading: rfidLoading 
+  const {
+    rfidPendings,
+    fetchRfidPendings,
+    deleteRfidPending,
+    loading: rfidLoading
   } = useRfidPending();
 
   const [globalLoading, setGlobalLoading] = useState(true);
@@ -44,11 +44,6 @@ const Dashboard = () => {
 
   // Carregar todos os dados do dashboard
   const loadDashboardData = async (isRefresh = false) => {
-    const notifyCopy = toast.success('Copiado para a área de transferência!', {
-      duration: 2000,
-      position: 'bottom-right',
-    });
-
     if (isRefresh) {
       setRefreshing(true);
     } else {
@@ -82,7 +77,6 @@ const Dashboard = () => {
   const handleDeleteRfid = async (rfidId) => {
     try {
       await deleteRfidPending(rfidId);
-      // A lista será atualizada automaticamente pelo hook
     } catch (error) {
       console.error('Erro ao deletar RFID:', error);
     }
@@ -144,14 +138,7 @@ const Dashboard = () => {
   const isLoading = globalLoading || usersLoading || modelsLoading || itemsLoading || transactionsLoading || rfidLoading;
 
   if (globalLoading && !refreshing) {
-    return (
-      <div className="flex items-center justify-center min-h-96">
-        <LoadingSpinner 
-          size="large" 
-          text="Carregando dashboard..." 
-        />
-      </div>
-    );
+    return <DashboardSkeleton />;
   }
 
   return (
@@ -169,7 +156,7 @@ const Dashboard = () => {
             )}
           </p>
         </div>
-        
+
         <RefreshButton
           onRefresh={() => loadDashboardData(true)}
           loading={refreshing}
@@ -195,8 +182,8 @@ const Dashboard = () => {
       )}
 
       {/* Grid de Estatísticas */}
-      <StatsGrid 
-        stats={stats} 
+      <StatsGrid
+        stats={stats}
         loading={isLoading || refreshing}
       />
 
@@ -224,31 +211,31 @@ const Dashboard = () => {
           Ações Rápidas
         </h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <button 
+          <button
             onClick={() => navigate('/users')}
             className="bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg p-4 text-center transition-colors duration-200 group"
           >
             <FiUsers className="text-blue-500 text-xl mx-auto mb-2 group-hover:scale-110 transition-transform" />
             <span className="text-sm font-medium text-blue-700">Gerenciar Usuários</span>
           </button>
-          
-          <button 
+
+          <button
             onClick={() => navigate('/item-models')}
             className="bg-green-50 hover:bg-green-100 border border-green-200 rounded-lg p-4 text-center transition-colors duration-200 group"
           >
             <FiPackage className="text-green-500 text-xl mx-auto mb-2 group-hover:scale-110 transition-transform" />
             <span className="text-sm font-medium text-green-700">Modelos de Itens</span>
           </button>
-          
-          <button 
+
+          <button
             onClick={() => navigate('/items')}
             className="bg-purple-50 hover:bg-purple-100 border border-purple-200 rounded-lg p-4 text-center transition-colors duration-200 group"
           >
             <FiTool className="text-purple-500 text-xl mx-auto mb-2 group-hover:scale-110 transition-transform" />
             <span className="text-sm font-medium text-purple-700">Cadastrar Itens</span>
           </button>
-          
-          <button 
+
+          <button
             onClick={() => navigate('/rfid-pendings')}
             className="bg-orange-50 hover:bg-orange-100 border border-orange-200 rounded-lg p-4 text-center transition-colors duration-200 group"
           >
@@ -275,6 +262,7 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
+
       <Toaster
         position="bottom-right"
         reverseOrder={false}

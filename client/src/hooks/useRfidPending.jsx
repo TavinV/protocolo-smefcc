@@ -21,8 +21,8 @@ const useRfidPending = () => {
   // Remover RFID pendente
   const deleteRfidPending = async (id) => {
     try {
-      const data = await makeRequest('delete', `/api/rfid-pending/${id}`);
-      await fetchRfidPendings(); // Atualiza a lista
+      const data = await makeRequest('delete', `/api/rfid-pending/${id}`, null);
+      await fetchRfidPendings(); // Atualiza lista após excluir
       return data;
     } catch (err) {
       throw err;
