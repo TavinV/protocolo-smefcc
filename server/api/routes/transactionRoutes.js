@@ -7,8 +7,10 @@ const router = express.Router();
 
 router.post('/', authenticateXApiKey, transactionController.createTransaction);
 router.get('/', authenticateToken, transactionController.getTransactions);
-router.get('/:id', authenticateToken, transactionController.getTransactionById);
-router.get('/last/:itemId', authenticateToken, transactionController.getLastTransactionByItemId);
+
 router.get('/borrowed', authenticateToken, transactionController.getAllBorrowedItems);
+router.get('/last/:itemId', authenticateToken, transactionController.getLastTransactionByItemId);
+
+router.get('/:id', authenticateToken, transactionController.getTransactionById);
 
 export default router;

@@ -1,5 +1,6 @@
 import React from 'react';
 import { FiRadio, FiTrash2, FiClock } from 'react-icons/fi';
+import { FaRegCopy } from "react-icons/fa";
 import EmptyState from '../ui/EmptyState';
 import LoadingSpinner from '../ui/LoadingSpinner';
 
@@ -25,7 +26,7 @@ const RfidPendingList = ({ rfidPendings, loading, onDelete, onViewAll }) => {
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border p-6">
+    <div className="bg-white rounded-lg shadow-md border border-gray-300 p-6">
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-lg font-semibold text-gray-800">
           RFIDs Pendentes
@@ -42,7 +43,7 @@ const RfidPendingList = ({ rfidPendings, loading, onDelete, onViewAll }) => {
 
       {rfidPendings.length === 0 ? (
         <EmptyState
-          icon="📡"
+          icon={<FiRadio />}
           title="Nenhum RFID pendente"
           description="RFIDs dos leitores aparecerão aqui automaticamente"
         />
@@ -59,7 +60,7 @@ const RfidPendingList = ({ rfidPendings, loading, onDelete, onViewAll }) => {
                 </div>
                 <div>
                   <p className="font-medium text-gray-800 text-sm">
-                    {rfid.rfid}
+                    {rfid.rfid.substring(0, 30)}...
                   </p>
                   <p className="text-xs text-gray-500 flex items-center space-x-1">
                     <FiClock className="inline" />
@@ -69,8 +70,15 @@ const RfidPendingList = ({ rfidPendings, loading, onDelete, onViewAll }) => {
               </div>
               
               <div className="flex items-center space-x-2">
-                <span className="text-xs text-gray-500 bg-white px-2 py-1 rounded border">
-                  {rfid.sensorId}
+                <span className="text-sm text-gray-500 px-2 py-1">
+                  <button className='text-gray-500 hover:text-gray-700 border-0 p-0 m-0' title="Copiar RFID">
+                    <FaRegCopy
+                      className="text-gray-500 hover:text-gray-700"
+                      onClick={() => {
+                        navigator.clipboard.writeText(rfid.rfid);
+                      }}
+                    />
+                  </button>
                 </span>
                 {onDelete && (
                   <button

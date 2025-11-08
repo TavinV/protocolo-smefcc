@@ -26,7 +26,7 @@ const RecentTransactions = ({ transactions, loading, onViewAll }) => {
 
   if (loading) {
     return (
-      <div className="bg-white rounded-lg shadow-sm border p-6">
+      <div className="bg-white rounded-lg shadow-md border border-gray-300 p-6">
         <h3 className="text-lg font-semibold text-gray-800 mb-4">
           Últimas Transações
         </h3>
@@ -36,7 +36,7 @@ const RecentTransactions = ({ transactions, loading, onViewAll }) => {
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border p-6">
+    <div className="bg-white rounded-lg shadow-md border border-gray-300 p-6">
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-lg font-semibold text-gray-800">
           Últimas Transações
@@ -53,7 +53,7 @@ const RecentTransactions = ({ transactions, loading, onViewAll }) => {
 
       {transactions.length === 0 ? (
         <EmptyState
-          icon="🔄"
+          icon={<FiRepeat />}
           title="Nenhuma transação"
           description="As transações aparecerão aqui automaticamente"
         />
@@ -70,7 +70,7 @@ const RecentTransactions = ({ transactions, loading, onViewAll }) => {
                 </div>
                 <div>
                   <p className="font-medium text-gray-800 text-sm">
-                    {transaction.item?.modelo?.nome || 'Item não encontrado'}
+                    {transaction.item?.codigoInterno || 'Item não encontrado'}
                   </p>
                   <p className="text-xs text-gray-500 flex items-center space-x-1">
                     <FiUser className="inline" />

@@ -10,47 +10,59 @@ const transactionController = {
         try {
             const transactionData = req.body;
             const { error, value } = validateTransaction(transactionData);
-            
+
             if (error) {
                 return ApiResponse.BADREQUEST(res, error[0]);
             }
 
             const user = await userService.findByRFID(value.rfid);
-            
+            console.log(user);
+
             if (!user || user.length === 0) {
                 return ApiResponse.BADREQUEST(res, { message: "Usuário inválido" });
             }
 
-            const item = await itemService.read({ _id: value.itemId });
+            const item = await itemService.read({ _id: value.item });
             if (!item || item.length === 0) {
                 return ApiResponse.BADREQUEST(res, { message: "Item inválido" });
             }
 
+            const selectedItem = Array.isArray(item) ? item[0] : item;
+
             if (value.tipo === "devolucao") {
-                // Verifica se o item foi retirado antes de permitir a devolução
                 const lastTransaction = await transactionService.getLastTransactionByItem(value.item);
 
-                if (!lastTransaction || lastTransaction.length === 0) {
+                if (!lastTransaction) {
                     return ApiResponse.BADREQUEST(res, { message: "Item não foi retirado" });
                 }
+
                 if (lastTransaction.tipo !== "retirada") {
                     return ApiResponse.BADREQUEST(res, { message: "Item já foi devolvido" });
                 }
-                
-                itemService.markAsAvailable(value.item);
 
-            } else if (value.tipo === "retirada") {
-                // Verifica se o item já está retirado
+                // Atualiza status do item
+                await itemService.markAsAvailable(value.item);
+            }
+
+            else if (value.tipo === "retirada") {
                 const lastTransaction = await transactionService.getLastTransactionByItem(value.item);
 
                 if (lastTransaction && lastTransaction.tipo === "retirada") {
                     return ApiResponse.BADREQUEST(res, { message: "Item já está retirado" });
                 }
-                itemService.markAsBorrowed(value.item);
+
+                await itemService.markAsBorrowed(value.item);
             }
 
-            const transaction = await transactionService.create(value);
+            const newTransactionData = {
+                rfid: value.rfid,
+                item: value.item,
+                tipo: value.tipo,
+            };
+
+            const transaction = await transactionService.create(newTransactionData);
             return ApiResponse.CREATED(res, transaction);
+
         } catch (error) {
             return handleControllerError(error, res);
         }
@@ -94,8 +106,8 @@ const transactionController = {
 
     async getAllBorrowedItems(req, res) {
         try {
-            const items = await transactionService.getAllBorrowedItems();
-            return ApiResponse.OK(res, items);
+            const transactions = await transactionService.getAllBorrowedItems();
+            return ApiResponse.OK(res, transactions);
         } catch (error) {
             return handleControllerError(error, res);
         }

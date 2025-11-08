@@ -143,6 +143,7 @@ const Dashboard = () => {
     );
   }
 
+  console.log(borrowedItems)
   return (
     <div className="space-y-6">
       {/* Header com título e botão de atualizar */}
@@ -208,7 +209,7 @@ const Dashboard = () => {
       </div>
 
       {/* Ações Rápidas */}
-      <div className="bg-white rounded-lg shadow-sm border p-6">
+      <div className="bg-white rounded-lg border-gray-300 shadow-md border p-6">
         <h3 className="text-lg font-semibold text-gray-800 mb-4">
           Ações Rápidas
         </h3>
@@ -248,7 +249,7 @@ const Dashboard = () => {
       </div>
 
       {/* Resumo do Sistema */}
-      <div className="bg-gray-50 rounded-lg p-4 border">
+      <div className="bg-gray-50 border-gray-300 shadow-md rounded-lg p-4 border">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
           <div>
             <p className="text-2xl font-bold text-gray-800">{users.length}</p>

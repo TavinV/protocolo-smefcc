@@ -1,5 +1,7 @@
 import Transaction from "../models/transactionModel.js";
 import User from "../models/userModel.js";
+import Item from "../models/itemModel.js";
+
 import {
     ValidationError,
     NotFoundError,
@@ -143,34 +145,42 @@ class TransactionService {
     }
 
     /**
-     * Retorna todos os itens atualmente emprestados
-     * @returns {Promise<Transaction[]>}
-     */
+ * Retorna todas as transações de itens atualmente emprestados
+ * (última transação = "retirada", ainda não devolvidos)
+ */
     async getAllBorrowedItems() {
-    try {
-        const transactions = await Transaction.find().sort({ createdAt: -1 });
+        try {
+            // Agrupa por item e pega a última transação de cada um
+            const lastTransactions = await Transaction.aggregate([
+                { $sort: { timestamp: -1 } },
+                {
+                    $group: {
+                        _id: "$item",
+                        lastTipo: { $first: "$tipo" },
+                        lastTransacao: { $first: "$$ROOT" },
+                    },
+                },
+                { $match: { lastTipo: "retirada" } },
+            ]);
 
-        // Cria um mapa com o último status de cada item
-        const lastTransactionByItem = new Map();
+            const itemIds = lastTransactions.map(t => t._id);
+            if (!itemIds.length) return [];
 
-        for (const tx of transactions) {
-            const itemId = tx.item.toString();
-            if (!lastTransactionByItem.has(itemId)) {
-                lastTransactionByItem.set(itemId, tx);
-            }
+            // Rebusca transações completas com populações
+            const transactions = await Transaction.find({
+                item: { $in: itemIds },
+                tipo: "retirada",
+            })
+                .populate("item")
+                .populate("usuario")
+                .sort({ timestamp: -1 });
+
+            return transactions;
+        } catch (err) {
+            console.error("Erro ao buscar itens emprestados:", err);
+            return [];
         }
-
-        // Filtra só as transações cuja última operação foi "retirada"
-        const borrowedItems = Array.from(lastTransactionByItem.values())
-            .filter(tx => tx.tipo === "retirada");
-
-        return borrowedItems; // sempre um array
-    } catch (err) {
-        console.error("Erro ao buscar itens emprestados:", err);
-        return [];
     }
-}
-
 
     /**
      * Retorna histórico de transações de um usuário

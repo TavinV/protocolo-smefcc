@@ -10,7 +10,7 @@ const Header = () => {
 
     return (
     <header className="bg-white shadow-sm border-b border-gray-200">
-        <div className="flex justify-between items-center px-4 md:px-6 py-4">
+        <div className="flex justify-between items-center px-10 md:px-6 py-4">
         {/* Left Side - Page Title */}
         <div className="flex items-center space-x-3">
             <div>
@@ -36,10 +36,10 @@ const Header = () => {
             
             <button
             onClick={handleLogout}
-            className="flex items-center space-x-2 bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
+            className="flex items-center space-x-2 bg-red-500 hover:bg-red-600 text-white md:px-3 md:py-2 p-2 rounded-lg text-sm font-medium transition-colors duration-200"
             >
             <FiLogOut className="text-sm md:text-lg" />
-            <span className="hidden md:inline">Sair</span>
+            <span className="">Sair</span>
             </button>
         </div>
         </div>
