@@ -1,18 +1,24 @@
-import React from 'react';
+import { useState } from 'react';
 import Header from './Header';
 import Sidebar from './Sidebar';
 import Footer from './Footer';
 
 const Layout = ({ children }) => {
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
+ 
+  function toggleMenu(){
+    setIsMobileOpen(!isMobileOpen)
+  }
+ 
   return (
     <div className="flex h-screen bg-gray-50">
       {/* Sidebar */}
-      <Sidebar />
+      <Sidebar setIsMobileOpen={setIsMobileOpen} isMobileOpen={isMobileOpen} />
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}
-        <Header />
+        <Header onMobileMenuClick={toggleMenu}/>
 
         {/* Page Content */}
         <main className="overflow-y-auto">

@@ -2,7 +2,8 @@ import React from 'react';
 import { FiLogOut, FiUser, FiMenu } from 'react-icons/fi';
 import useAuth from '../../hooks/useAuth';
 
-const Header = () => {
+const Header = ({onMobileMenuClick}) => {
+    
   const { user, logout } = useAuth();
     const handleLogout = () => {
         logout();
@@ -10,9 +11,16 @@ const Header = () => {
 
     return (
     <header className="bg-white shadow-sm border-b border-gray-200">
-        <div className="flex justify-between items-center px-10 md:px-6 py-4">
+        <div className="flex justify-center sm:justify-between items-center px-10 md:px-6 py-4">
+        <div className='absolute left-5 p-0 sm:hidden flex items-center'>
+            <button className='sm:hidden flex' onClick={()=>{
+                onMobileMenuClick()
+            }}>
+                <FiMenu className='text-2xl'/>
+            </button>
+        </div>
         {/* Left Side - Page Title */}
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center space-x-3s">
             <div>
             <h1 className="text-lg md:text-xl font-semibold text-gray-800">
                 Sistema de Empréstimo
@@ -36,7 +44,7 @@ const Header = () => {
             
             <button
             onClick={handleLogout}
-            className="flex items-center space-x-2 bg-red-500 hover:bg-red-600 text-white md:px-3 md:py-2 p-2 rounded-lg text-sm font-medium transition-colors duration-200"
+            className="sm:flex hidden items-center space-x-2 bg-red-500 hover:bg-red-600 text-white md:px-3 md:py-2 p-2 rounded-lg text-sm font-medium transition-colors duration-200"
             >
             <FiLogOut className="text-sm md:text-lg" />
             <span className="">Sair</span>
