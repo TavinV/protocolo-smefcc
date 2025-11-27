@@ -71,7 +71,7 @@ const Sidebar = ({isMobileOpen, setIsMobileOpen}) => {
             <div className="flex items-center space-x-3">
               <FiShield className="text-xl text-blue-400" />
               <div>
-                <h2 className="text-lg font-bold">SMEFCC</h2>
+                <h2 className="text-lg font-bold">SAMIF</h2>
                 <p className="text-gray-400 text-xs">Controle</p>
               </div>
             </div>

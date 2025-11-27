@@ -1,7 +1,7 @@
-# 🧰 SMEFCC  
+# 🧰 SAMIF  
 📌 **Sistema de Monitoramento e Empréstimo de Fiscalização da Construção Cívil**
 
-O **SMEFCC** é um sistema de gerenciamento e rastreamento de ferramentas desenvolvido para o **SENAI** como trabalho de conclusão do curso técnico em mecatrônica, integrando tecnologia **RFID** e controle digital de usuários, itens e empréstimos.  
+O **SAMIF** é um sistema de gerenciamento e rastreamento de ferramentas desenvolvido para o **SENAI** como trabalho de conclusão do curso técnico em mecatrônica, integrando tecnologia **RFID** e controle digital de usuários, itens e empréstimos.  
 O objetivo é substituir o controle manual de ferramentas por um sistema automatizado, eficiente e seguro — reduzindo perdas, melhorando a organização e facilitando a rastreabilidade de cada item.
 
 ---

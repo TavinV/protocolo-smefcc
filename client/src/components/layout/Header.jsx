@@ -23,10 +23,10 @@ const Header = ({onMobileMenuClick}) => {
         <div className="flex items-center space-x-3s">
             <div>
             <h1 className="text-lg md:text-xl font-semibold text-gray-800">
-                Sistema de Empréstimo
+                Protocolo SAMIF 
             </h1>
             <p className="text-xs md:text-sm text-gray-500 hidden md:block">
-                Protocolo SMEFCC
+                Sistema de Automação e Monitoramento de Inventário de Ferramentas
             </p>
             </div>
         </div>
