@@ -15,26 +15,28 @@ const transactionController = {
             const user = await userService.findByRFID(value.rfid);
             if (!user) return ApiResponse.BADREQUEST(res, { message: "Usuário inválido" });
 
-            const item = await itemService.read({ _id: value.item });
+            const item = await itemService.read({ codigoInterno : value.item });
             const selectedItem = Array.isArray(item) ? item[0] : item;
             if (!selectedItem) return ApiResponse.BADREQUEST(res, { message: "Item inválido" });
 
             // Verifica estado anterior do item
-            const lastTx = await transactionService.getLastTransactionByItem(value.item);
+            const lastTx = await transactionService.getLastTransactionByItem(selectedItem._id);
             if (value.tipo === "devolucao") {
-                if (!lastTx || lastTx.tipo !== "retirada")
+                if (!lastTx || lastTx.tipo !== "retirada"){
+                    await itemService.markAsAvailable(selectedItem._id);
                     return ApiResponse.BADREQUEST(res, { message: "Item não foi retirado ou já devolvido" });
-                await itemService.markAsAvailable(value.item);
-            } else if (value.tipo === "retirada") {
+                }
+            }
+            else if (value.tipo === "retirada") {
                 if (lastTx && lastTx.tipo === "retirada")
                     return ApiResponse.BADREQUEST(res, { message: "Item já está retirado" });
-                await itemService.markAsBorrowed(value.item);
+                    await itemService.markAsBorrowed(selectedItem._id);
             }
 
             // ✅ Passa o usuário diretamente
             const transaction = await transactionService.create({
                 user,
-                item: value.item,
+                item: selectedItem._id,
                 tipo: value.tipo,
                 observacoes: value.observacoes || "",
             });

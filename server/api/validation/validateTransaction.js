@@ -24,10 +24,8 @@ const createTransactionSchema = Joi.object({
 
     item: Joi.string()
         .required()
-        .custom(objectIdValidator, "Validador de ObjectId")
         .messages({
             "any.required": "O item é obrigatório.",
-            "any.invalid": "O ID do item informado não é válido.",
         }),
 
     tipo: Joi.string()
