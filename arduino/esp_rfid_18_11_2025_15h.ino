@@ -52,6 +52,10 @@ Servo myServo3;
 WiFiClient espClient;             // Cria um cliente Wi-Fi para uso com o MQTT
 PubSubClient client(espClient);   // Cria um cliente MQTT usando o cliente Wi-Fi
 
+char* codgChaveFenda = "CHAV-00001";
+char* codgMartelo = "MART-00001";
+char* codgAlicate  = "ALIC-00001";
+
 //Função "girarServoPorTempoH1"
 void girarServoPorTempoH1(unsigned long tempo) {
   // Para servos contínuos:
@@ -61,7 +65,7 @@ void girarServoPorTempoH1(unsigned long tempo) {
 
   myServo1.write(120); // Gira para frente (ajuste conforme a direção desejada)
   delay(tempo);       // Mantém o movimento por 'tempo' milissegundos
-  myServo1.write(90);  // Para o servo
+  myServo1.write(96);  // Para o servo
   Serial.println("Movimento concluído. Servo parado.");
 }
 
@@ -74,7 +78,7 @@ void girarServoPorTempoH2(unsigned long tempo) {
 
   myServo2.write(120); // Gira para frente (ajuste conforme a direção desejada)
   delay(tempo);       // Mantém o movimento por 'tempo' milissegundos
-  myServo2.write(30);  // Para o servo
+  myServo2.write(96);  // Para o servo
   Serial.println("Movimento concluído. Servo parado.");
 }
 
@@ -87,7 +91,7 @@ void girarServoPorTempoH3(unsigned long tempo) {
 
   myServo3.write(120); // Gira para frente (ajuste conforme a direção desejada)
   delay(tempo);       // Mantém o movimento por 'tempo' milissegundos
-  myServo3.write(10);  // Para o servo
+  myServo3.write(90);  // Para o servo
   Serial.println("Movimento concluído. Servo parado.");
 }
 
@@ -98,9 +102,9 @@ void girarServoPorTempoA1(unsigned long tempo) {
   //  - write(<90) -> gira em um sentido
   //  - write(>90) -> gira no outro sentido
 
-  myServo1.write(60); // Gira para frente (ajuste conforme a direção desejada)
+  myServo1.write(70); // Gira para frente (ajuste conforme a direção desejada)
   delay(tempo);       // Mantém o movimento por 'tempo' milissegundos
-  myServo1.write(90);  // Para o servo
+  myServo1.write(96);  // Para o servo
   Serial.println("Movimento concluído. Servo parado.");
 }
 
@@ -113,7 +117,7 @@ void girarServoPorTempoA2(unsigned long tempo) {
 
   myServo2.write(70); // Gira para frente (ajuste conforme a direção desejada)
   delay(tempo);       // Mantém o movimento por 'tempo' milissegundos
-  myServo2.write(30);  // Para o servo
+  myServo2.write(96);  // Para o servo
   Serial.println("Movimento concluído. Servo parado.");
 }
 
@@ -126,8 +130,48 @@ void girarServoPorTempoA3(unsigned long tempo) {
 
   myServo3.write(70); // Gira para frente (ajuste conforme a direção desejada)
   delay(tempo);       // Mantém o movimento por 'tempo' milissegundos
-  myServo3.write(10);  // Para o servo
+  myServo3.write(90);  // Para o servo
   Serial.println("Movimento concluído. Servo parado.");
+}
+
+// função para publicar uma transação
+void publicarTransacaoMQTT(String rfid, String item, String tipo) {
+  // Monta o JSON manualmente
+  String payload = "{";
+  payload += "\"rfid\":\"" + rfid + "\",";
+  payload += "\"item\":\"" + item + "\",";
+  payload += "\"tipo\":\"" + tipo + "\"";
+  payload += "}";
+
+  // Converte para char*
+  char message[256];
+  payload.toCharArray(message, 256);
+
+  // Publica no tópico desejado
+  if (client.publish("transacoes", message)) {
+    Serial.println("JSON enviado por MQTT:");
+    Serial.println(message);
+  } else {
+    Serial.println("Erro ao enviar JSON via MQTT");
+  }
+}
+
+void publicarRfidMQTT(String rfid) {
+  String payload = "{";
+  payload += "\"rfid\": \"" + rfid +"\"";
+  payload += "}";
+
+  // Converte para char*
+  char message[256];
+  payload.toCharArray(message, 256);
+
+  // Publica no tópico desejado
+  if (client.publish("rfids", message)) {
+    Serial.println("JSON enviado por MQTT:");
+    Serial.println(message);
+  } else {
+    Serial.println("Erro ao enviar JSON via MQTT");
+  }
 }
 
 // Função para conectar à rede Wi-Fi
@@ -149,7 +193,7 @@ void setup_wifi()
 
 
 // Função para reconectar ao broker MQTT caso a conexão caia
-void reconnect() 
+ void reconnect() 
 {
   while (!client.connected())                   // Enquanto não estiver conectado ao broker...
   {
@@ -161,7 +205,7 @@ void reconnect()
     } 
     else 
     {
-      Serial.print("Falhou, rc=");              // Falha na conexão
+      Serial.println("Falhou, rc=");              // Falha na conexão
       Serial.print(client.state());             // Imprime código do erro
       delay(5000);                              // Aguarda 5 segundos antes de tentar novamente
     }
@@ -202,12 +246,14 @@ void setup() {
 
 
 void loop() {
+
   if (!client.connected())                       // Se não estiver conectado ao MQTT
   {
     reconnect();                                 // Tenta reconectar
   }
   client.loop();                                 // Mantém a conexão MQTT ativa e processa mensagens
   
+
   //Desliga todos os LEDs no início da programação
   digitalWrite(F1, LOW);
   digitalWrite(F2, LOW);
@@ -247,129 +293,15 @@ void loop() {
   Serial.print("Mensagem : ");
   conteudo.toUpperCase();
     
+
+
 //Condição: "Se a TAG selecionada for diferente das apresentadas abaixo, executar a ação abaixo"
   if (conteudo.substring(1) != "A6 5D C0 AC" && 
-      conteudo.substring(1) != "F3 26 8E FA" && 
-      conteudo.substring(1) != "33 C4 80 34") 
+      conteudo.substring(1) != "F3 26 8E FA" 
+      && conteudo.substring(1) != "33 C4 80 34"
+      ) 
   {
     
-//Ação: "Exibir uma mensagem de "Acesso Negado", acender o LED vermelho por 3 segundos e continuar a programação depois da condição"
-    Serial.println("Acesso Negado! Você não está cadastrado no sistema.");
-    Serial.println();
-    digitalWrite(L1, HIGH);
-    delay(3000);            
-    digitalWrite(L1, LOW);
-  } else {
-
-//Se a condição acima for falsa (se a TAG selecionada estiver cadastrada), executar a ação abaixo
-//Ação: "Exibe a mensagem "Acesso Liberado", acende o LED azul, espera 3 segundos e continua a programação"
-    Serial.println("Acesso Liberado!");
-    Serial.println();
-    digitalWrite(L2, HIGH); 
-    delay(3000);        
-    
-//Iguala o estado do botão à leitura da variável
-    estadoB2 = digitalRead(B2);
-    estadoB3 = digitalRead(B3);
-    estadoB1 = digitalRead(B1);
-
-    estadosensor1 = digitalRead(S1);
-    estadosensor2 = digitalRead(S2);
-    estadosensor3 = digitalRead(S3);  
-
-//Realiza a leitura dos 3 botões na sequência estipulada
-//Se o estado do botão 2 for "HIGH" (se o botão estiver pressionado), executar a seguinte ação
-    if (estadoB2 == HIGH && estadosensor2 == HIGH) {
-//Acende o LED da Ferramenta 2, abre a garra através do giro do servomotor na função "girarServoPorTempo" por 1 segundo, volta o estado do botão para 0, apaga todos os LEDs acesos e continua a programação     
-      digitalWrite(F2, HIGH);
-      Serial.println("Ferramenta 2 selecionada");
-      Serial.println();             
-      girarServoPorTempoH1(1000); 
-      estadoB2 = 0;
-      delay(3000);             
-      digitalWrite(F2, LOW);   
-      digitalWrite(L2, LOW);
-    } 
-
-    //Se o estado do botão 2 for "HIGH" (se o botão estiver pressionado), executar a seguinte ação
-    else if (estadoB2 == HIGH && estadosensor2 == LOW) {
-//Acende o LED da Ferramenta 2, abre a garra através do giro do servomotor na função "girarServoPorTempo" por 1 segundo, volta o estado do botão para 0, apaga todos os LEDs acesos e continua a programação     
-      digitalWrite(F2, HIGH);
-      Serial.println("Ferramenta 2 selecionada");
-      Serial.println();             
-      girarServoPorTempoA1(1000); 
-      estadoB2 = 0;
-      delay(3000);             
-      digitalWrite(F2, LOW);   
-      digitalWrite(L2, LOW);
-    } 
-    
-//Se a condição acima for falsa, realiza a leitura do estado do botão 3
-    else if (estadoB3 == HIGH && estadosensor3 == HIGH){ 
-//Se o estado do botão 3 for "HIGH", acende o LED da ferramenta 3 por 1 segundo, volta o estado do botão para 0, desliga todos LEDs acesos e continua a programação
-      digitalWrite(F3, HIGH);
-      Serial.println("Ferramenta 3 selecionada");
-      Serial.println();
-      girarServoPorTempoH2(1000);             
-      estadoB3 = 0;
-      delay(3000);             
-      digitalWrite(F3, LOW);   
-          digitalWrite(L2, LOW);
-    }
-
-        else if (estadoB3 == HIGH && estadosensor3 == LOW){ 
-//Se o estado do botão 3 for "HIGH", acende o LED da ferramenta 3 por 1 segundo, volta o estado do botão para 0, desliga todos LEDs acesos e continua a programação
-      digitalWrite(F3, HIGH);
-      Serial.println("Ferramenta 3 selecionada");
-      Serial.println();
-      girarServoPorTempoA2(1000);             
-      estadoB3 = 0;
-      delay(3000);             
-      digitalWrite(F3, LOW);   
-          digitalWrite(L2, LOW);
-    }
-    
-//Se a condição acima for falsa, realiza a leitura do estado do botão 1
-    else if (estadoB1 == HIGH && estadosensor1 == HIGH){ 
-//Se o estado do botão 1 for "HIGH", acende o LED da ferramenta 1 por 1 segundo, volta o estado do botão para 0, desliga todos LEDs acesos e continua a programação
-      digitalWrite(F1, HIGH);
-      Serial.println("Ferramenta 1 selecionada");
-      Serial.println();    
-      girarServoPorTempoH3(1000); 
-      estadoB1 = 0;
-      delay(3000);                      
-      digitalWrite(F1, LOW);  
-      digitalWrite(L2, LOW);      
-    }
-
-    //Se a condição acima for falsa, realiza a leitura do estado do botão 1
-    else if (estadoB1 == HIGH && estadosensor1 == LOW){ 
-//Se o estado do botão 1 for "HIGH", acende o LED da ferramenta 1 por 1 segundo, volta o estado do botão para 0, desliga todos LEDs acesos e continua a programação
-      digitalWrite(F1, HIGH);
-      Serial.println("Ferramenta 1 selecionada");
-      Serial.println();    
-      girarServoPorTempoA3(1000); 
-      estadoB1 = 0;
-      delay(3000);                      
-      digitalWrite(F1, LOW);  
-      digitalWrite(L2, LOW);      
-    }
-    
-//Se todas as condições acimas forem falsas, desliga todos os LEDs e continua a programação
-    else{
-  digitalWrite(F1, LOW);
-  digitalWrite(F2, LOW);
-  digitalWrite(F3, LOW);
-  digitalWrite(L1, LOW);
-  digitalWrite(L2, LOW);
-  Serial.println("Nenhuma ferramenta selecionada");
-  Serial.println(); 
-      }
-
-  }
-
-  //-------------------------------------------
-
 //Biblioteca MFRC522
   mfrc522.PICC_DumpDetailsToSerial(&(mfrc522.uid)); // dump some details about the card
 
@@ -435,12 +367,217 @@ void loop() {
     }
   }
 
+
+//Ação: "Exibir uma mensagem de "Acesso Negado", acender o LED vermelho por 3 segundos e continuar a programação depois da condição"
+    Serial.println();
+    Serial.println("Acesso Negado! Você não está cadastrado no sistema.");
+    Serial.println();
+    digitalWrite(L1, HIGH);
+    delay(2500);            
+    digitalWrite(L1, LOW);
+
+    estadoB2 = digitalRead(B2);
+    estadoB3 = digitalRead(B3);
+    estadoB1 = digitalRead(B1);
+
+if(estadoB1 == HIGH && estadoB2 == HIGH && estadoB3 == HIGH){
+  Serial.println("Novo Cadastro de TAG");
+  publicarRfidMQTT(conteudo.substring(1));
+  Serial.println();
+  
+}
+
+  } else {
+
+   
+//Biblioteca MFRC522
+  mfrc522.PICC_DumpDetailsToSerial(&(mfrc522.uid)); // dump some details about the card
+
+  Serial.print(F("Name: "));
+
+  byte buffer1[18];
+  block = 4;
+  len = 18;
+
+  //------------------------------------------- GET FIRST NAME
+  status = mfrc522.PCD_Authenticate(MFRC522::PICC_CMD_MF_AUTH_KEY_A, 4, &key, &(mfrc522.uid));
+  if (status != MFRC522::STATUS_OK) {
+    Serial.print(F("Authentication failed on block 4: "));
+    Serial.println(mfrc522.GetStatusCodeName(status));
+    mfrc522.PICC_HaltA();
+    mfrc522.PCD_StopCrypto1();
+    return;
+  }
+
+  status = mfrc522.MIFARE_Read(block, buffer1, &len);
+  if (status != MFRC522::STATUS_OK) {
+    Serial.print(F("Reading failed on block 4: "));
+    Serial.println(mfrc522.GetStatusCodeName(status));
+    mfrc522.PICC_HaltA();
+    mfrc522.PCD_StopCrypto1();
+    return;
+  }
+
+  //PRINT FIRST NAME
+  for (uint8_t i = 0; i < 16; i++) {
+    if (buffer1[i] != 32 && buffer1[i] != 0) { // Check for space (32) and null terminator (0)
+      Serial.write(buffer1[i]);
+    }
+  }
+  Serial.print(" ");
+
+  //---------------------------------------- GET LAST NAME
+  byte buffer2[18];
+  block = 1;
+
+  status = mfrc522.PCD_Authenticate(MFRC522::PICC_CMD_MF_AUTH_KEY_A, 1, &key, &(mfrc522.uid));
+  if (status != MFRC522::STATUS_OK) {
+    Serial.print(F("Authentication failed on block 1: "));
+    Serial.println(mfrc522.GetStatusCodeName(status));
+    mfrc522.PICC_HaltA();
+    mfrc522.PCD_StopCrypto1();
+    return;
+  }
+
+  status = mfrc522.MIFARE_Read(block, buffer2, &len);
+  if (status != MFRC522::STATUS_OK) {
+    Serial.print(F("Reading failed on block 1: "));
+    Serial.println(mfrc522.GetStatusCodeName(status));
+    mfrc522.PICC_HaltA();
+    mfrc522.PCD_StopCrypto1();
+    return;
+  }
+
+  //PRINT LAST NAME
+  for (uint8_t i = 0; i < 16; i++) {
+    if (buffer2[i] != 32 && buffer2[i] != 0) {
+      Serial.write(buffer2[i]);
+    }
+  }
+
+//Se a condição acima for falsa (se a TAG selecionada estiver cadastrada), executar a ação abaixo
+//Ação: "Exibe a mensagem "Acesso Liberado", acende o LED azul, espera 3 segundos e continua a programação"
+    Serial.println();
+    Serial.println("Acesso Liberado!");
+    Serial.println();
+    digitalWrite(L2, HIGH); 
+    delay(3000);        
+    
+//Iguala o estado do botão à leitura da variável
+
+    estadoB2 = digitalRead(B2);
+    estadoB3 = digitalRead(B3);
+    estadoB1 = digitalRead(B1);
+
+    estadosensor1 = digitalRead(S1);
+    estadosensor2 = digitalRead(S2);
+    estadosensor3 = digitalRead(S3);  
+
+//Realiza a leitura dos 3 botões na sequência estipulada
+//Se o estado do botão 2 for "HIGH" (se o botão estiver pressionado), executar a seguinte ação
+    if (estadoB2 == HIGH && estadosensor2 == LOW) {
+      //Acende o LED da Ferramenta 2, abre a garra através do giro do servomotor na função "girarServoPorTempo" por 1 segundo, volta o estado do botão para 0, apaga todos os LEDs acesos e continua a programação     
+      digitalWrite(F2, HIGH);
+      Serial.println("Ferramenta 2: Retirada");
+      Serial.println();  
+      publicarTransacaoMQTT(conteudo.substring(1), "ALIC-00001", "retirada");           
+      girarServoPorTempoH2(1000); 
+      estadoB2 = 0;
+      delay(3000);             
+      digitalWrite(F2, LOW);   
+      digitalWrite(L2, LOW);
+    } 
+
+    //Se o estado do botão 2 for "HIGH" (se o botão estiver pressionado), executar a seguinte ação
+    else if (estadoB2 == HIGH && estadosensor2 == HIGH) {
+      //Acende o LED da Ferramenta 2, abre a garra através do giro do servomotor na função "girarServoPorTempo" por 1 segundo, volta o estado do botão para 0, apaga todos os LEDs acesos e continua a programação     
+      digitalWrite(F2, HIGH);
+      Serial.println("Ferramenta 2: Devolução");
+      Serial.println();
+      publicarTransacaoMQTT(conteudo.substring(1), "ALIC-00001", "devolucao");           
+      girarServoPorTempoA2(1000); 
+      estadoB2 = 0;
+      delay(3000);             
+      digitalWrite(F2, LOW);   
+      digitalWrite(L2, LOW);
+    } 
+    
+      //Se a condição acima for falsa, realiza a leitura do estado do botão 3
+    else if (estadoB3 == HIGH && estadosensor3 == LOW){ 
+      //Se o estado do botão 3 for "HIGH", acende o LED da ferramenta 3 por 1 segundo, volta o estado do botão para 0, desliga todos LEDs acesos e continua a programação
+      digitalWrite(F3, HIGH);
+      Serial.println("Ferramenta 3: Retirada");
+      Serial.println();
+      publicarTransacaoMQTT(conteudo.substring(1), "CHAV-00001", "retirada");           
+      girarServoPorTempoH3(1000);             
+      estadoB3 = 0;
+      delay(3000);             
+      digitalWrite(F3, LOW);   
+          digitalWrite(L2, LOW);
+    }
+
+        else if (estadoB3 == HIGH && estadosensor3 == HIGH){ 
+      //Se o estado do botão 3 for "HIGH", acende o LED da ferramenta 3 por 1 segundo, volta o estado do botão para 0, desliga todos LEDs acesos e continua a programação
+      digitalWrite(F3, HIGH);
+      Serial.println("Ferramenta 3: Devolução");
+      Serial.println();
+      publicarTransacaoMQTT(conteudo.substring(1), "CHAV-00001", "devolucao");           
+      girarServoPorTempoA3(1000);             
+      estadoB3 = 0;
+      delay(3000);             
+      digitalWrite(F3, LOW);   
+          digitalWrite(L2, LOW);
+    }
+    
+    //Se a condição acima for falsa, realiza a leitura do estado do botão 1
+    else if (estadoB1 == HIGH && estadosensor1 == LOW){ 
+      //Se o estado do botão 1 for "HIGH", acende o LED da ferramenta 1 por 1 segundo, volta o estado do botão para 0, desliga todos LEDs acesos e continua a programação
+      digitalWrite(F1, HIGH);
+      Serial.println("Ferramenta 1: Retirada");
+      Serial.println();    
+      publicarTransacaoMQTT(conteudo.substring(1), "MART-00001", "retirada");           
+      girarServoPorTempoH1(1000); 
+      estadoB1 = 0;
+      delay(3000);                      
+      digitalWrite(F1, LOW);  
+      digitalWrite(L2, LOW);      
+    }
+
+    //Se a condição acima for falsa, realiza a leitura do estado do botão 1
+    else if (estadoB1 == HIGH && estadosensor1 == HIGH){ 
+//Se o estado do botão 1 for "HIGH", acende o LED da ferramenta 1 por 1 segundo, volta o estado do botão para 0, desliga todos LEDs acesos e continua a programação
+      digitalWrite(F1, HIGH);
+      Serial.println("Ferramenta 1: Devolução");
+      Serial.println();    
+      girarServoPorTempoA1(1000); 
+      publicarTransacaoMQTT(conteudo.substring(1), "MART-00001", "devolucao");           
+      estadoB1 = 0;
+      delay(3000);                      
+      digitalWrite(F1, LOW);  
+      digitalWrite(L2, LOW);      
+    }
+    
+//Se todas as condições acimas forem falsas, desliga todos os LEDs e continua a programação
+    else{
+  digitalWrite(F1, LOW);
+  digitalWrite(F2, LOW);
+  digitalWrite(F3, LOW);
+  digitalWrite(L1, LOW);
+  digitalWrite(L2, LOW);
+  Serial.println("Nenhuma ferramenta selecionada");
+      }
+
+  }
+
+  //-------------------------------------------
+
+
   // Clean up and halt PICC communication
   Serial.println(F("\n**End Reading**\n"));
+  Serial.println("================================");
+  Serial.println("");
   mfrc522.PICC_HaltA();
   mfrc522.PCD_StopCrypto1();
-
-
 
 }
 
