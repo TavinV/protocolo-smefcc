@@ -1,12 +1,14 @@
 import express from "express";
 import userController from "../controllers/userController.js";
-import { authenticateToken } from "../middleware/authMiddleware.js";
+import { authenticateToken,  } from "../middleware/authMiddleware.js";
+import { authenticateXApiKey } from '../middleware/authXApiKey.js';
 
 const router = express.Router();
 
 router.get("/", authenticateToken, userController.getUsers);
 router.get("/me", authenticateToken, userController.getProfile);
 router.get("/:id", authenticateToken, userController.getUserById);
+router.get("/:rfid", authenticateXApiKey, userController.getUserByRfid);
 
 router.post("/", authenticateToken, userController.createUser);
 
