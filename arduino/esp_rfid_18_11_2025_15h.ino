@@ -3,11 +3,12 @@
 #include <MFRC522.h>
 #include <ESP32Servo.h>
 #include <WiFi.h>                  // Biblioteca para conexão Wi-Fi no ESP32
+#include <ArduinoJson.h>           // Bblioteca para parsear o json
 #include <PubSubClient.h>         // Biblioteca para comunicação via protocolo MQTT
 
 // Configurações de rede Wi-Fi e servidor MQTT
-const char* ssid = "Andrielzinho";                         // Nome da rede Wi-Fi
-const char* password = "andriel.com.brz";               // Senha da rede Wi-Fi
+const char* ssid = "Tavin Net";                         // Nome da rede Wi-Fi
+const char* password = "eotatasnekrl";               // Senha da rede Wi-Fi
 const char* mqtt_server = "test.mosquitto.org";   // Endereço do broker MQTT (servidor)
 
 //Definição do nome dos LEDs de Acesso Liberado ou Negado e suas respectivas portas
@@ -55,6 +56,10 @@ PubSubClient client(espClient);   // Cria um cliente MQTT usando o cliente Wi-Fi
 char* codgChaveFenda = "CHAV-00001";
 char* codgMartelo = "MART-00001";
 char* codgAlicate  = "ALIC-00001";
+
+#define MAX_RFID_COUNT 10  // Defina o tamanho máximo do array, ajuste conforme necessário
+String authorizedRFIDs[MAX_RFID_COUNT];
+int rfidCount = 0;  // Variável para controlar a quantidade de RFIDs autorizados
 
 //Função "girarServoPorTempoH1"
 void girarServoPorTempoH1(unsigned long tempo) {
@@ -134,6 +139,53 @@ void girarServoPorTempoA3(unsigned long tempo) {
   Serial.println("Movimento concluído. Servo parado.");
 }
 
+bool callback(char* topic, byte* payload, unsigned int length)
+{
+
+  // Converte o payload de byte para uma String
+  String message = "";
+  for (unsigned int i = 0; i < length; i++) {
+    message += (char)payload[i];
+  }
+
+  Serial.print("Mensagem recebida [");
+  Serial.print(topic);
+  Serial.print("]: ");
+  Serial.println(message);
+
+  // Cria um objeto JSON
+  StaticJsonDocument<200> doc;
+  DeserializationError error = deserializeJson(doc, message);
+
+  // Se ocorrer erro ao deserializar o JSON, retorna false
+  if (error) {
+    Serial.print(F("Erro ao analisar JSON: "));
+    Serial.println(error.c_str());
+    return false;
+  }
+
+  // Extrai o valor do campo "authorized"
+  bool authorized = doc["authorized"];  // Obtém o valor do campo "authorized"
+  
+  // Se autorizado, extrai o RFID e adiciona ao array
+  if (authorized) {
+    const char* rfid = doc["rfid"];  // Extrai o valor do campo "rfid"
+    
+    // Adiciona o RFID ao array, se não ultrapassar o limite
+    if (rfidCount < MAX_RFID_COUNT) {
+      authorizedRFIDs[rfidCount] = String(rfid);  // Adiciona o RFID ao array
+      rfidCount++;  // Incrementa o contador
+      Serial.print("RFID autorizado adicionado: ");
+      Serial.println(rfid);
+    } else {
+      Serial.println("Limite de RFIDs autorizados alcançado!");
+    }
+  }
+
+  // Retorna o valor de "authorized" (true ou false)
+  return authorized;
+}
+
 // função para publicar uma transação
 void publicarTransacaoMQTT(String rfid, String item, String tipo) {
   // Monta o JSON manualmente
@@ -156,7 +208,7 @@ void publicarTransacaoMQTT(String rfid, String item, String tipo) {
   }
 }
 
-void publicarRfidMQTT(String rfid) {
+void publicarRfidPendenteMQTT(String rfid) {
   String payload = "{";
   payload += "\"rfid\": \"" + rfid +"\"";
   payload += "}";
@@ -166,13 +218,32 @@ void publicarRfidMQTT(String rfid) {
   payload.toCharArray(message, 256);
 
   // Publica no tópico desejado
-  if (client.publish("rfids", message)) {
+  if (client.publish("rfids/pendentes", message)) {
     Serial.println("JSON enviado por MQTT:");
     Serial.println(message);
   } else {
     Serial.println("Erro ao enviar JSON via MQTT");
   }
 }
+
+void publicarRfidLidoMQTT(String rfid) {
+  String payload = "{";
+  payload += "\"rfid\": \"" + rfid +"\"";
+  payload += "}";
+
+  // Converte para char*
+  char message[256];
+  payload.toCharArray(message, 256);
+
+  // Publica no tópico desejado
+  if (client.publish("rfids/lidos", message)) {
+    Serial.println("JSON enviado por MQTT:");
+    Serial.println(message);
+  } else {
+    Serial.println("Erro ao enviar JSON via MQTT");
+  }
+}
+
 
 // Função para conectar à rede Wi-Fi
 void setup_wifi() 
@@ -202,6 +273,8 @@ void setup_wifi()
     if (client.connect(clientId.c_str()))       // Tenta se conectar com o ID gerado
     {
       Serial.println("conectado");              // Sucesso na conexão
+      client.subscribe("rfids/autorizados"); // <-- garantir inscrição após reconectar
+  
     } 
     else 
     {
@@ -218,6 +291,8 @@ void setup() {
   
   setup_wifi();                                  // Chama função para conectar ao Wi-Fi
   client.setServer(mqtt_server, 1883);           // Configura o servidor MQTT (porta 1883)
+  client.subscribe("rfids/autorizados");
+  client.setCallback(callback);        // Associa a função que será chamada ao receber mensagens MQTT
   //Declaração dos tipos de pinos (Entrada ou Saída)
   pinMode(F1, OUTPUT);
   pinMode(F2, OUTPUT);
@@ -241,6 +316,7 @@ void setup() {
   myServo1.write(90);       
   myServo2.write(30); 
   myServo3.write(10);    
+
 }
 
 
@@ -293,15 +369,6 @@ void loop() {
   Serial.print("Mensagem : ");
   conteudo.toUpperCase();
     
-
-
-//Condição: "Se a TAG selecionada for diferente das apresentadas abaixo, executar a ação abaixo"
-  if (conteudo.substring(1) != "A6 5D C0 AC" && 
-      conteudo.substring(1) != "F3 26 8E FA" 
-      && conteudo.substring(1) != "33 C4 80 34"
-      ) 
-  {
-    
 //Biblioteca MFRC522
   mfrc522.PICC_DumpDetailsToSerial(&(mfrc522.uid)); // dump some details about the card
 
@@ -367,6 +434,23 @@ void loop() {
     }
   }
 
+  publicarRfidLidoMQTT(conteudo.substring(1));
+
+  
+//==================================================================================================================================
+
+bool autorizado = false;  // Variável para armazenar o status de autorização
+
+for (int i = 0; i < rfidCount; i++) {  // Itera sobre os RFIDs autorizados
+  // Verifica se a substring extraída de 'content' está na lista de RFIDs autorizados
+  if (conteudo.substring(1) == authorizedRFIDs[i]) {
+    autorizado = true;  // Se encontrar, define 'autorizado' como true
+    break;  // Sai do loop, pois a TAG foi encontrada
+  }
+}
+
+//Condição: "Se a TAG selecionada não estiver cadastrada, executar a ação abaixo"
+  if (!autorizado){
 
 //Ação: "Exibir uma mensagem de "Acesso Negado", acender o LED vermelho por 3 segundos e continuar a programação depois da condição"
     Serial.println();
@@ -382,78 +466,12 @@ void loop() {
 
 if(estadoB1 == HIGH && estadoB2 == HIGH && estadoB3 == HIGH){
   Serial.println("Novo Cadastro de TAG");
-  publicarRfidMQTT(conteudo.substring(1));
+  publicarRfidPendenteMQTT(conteudo.substring(1));
   Serial.println();
   
 }
 
   } else {
-
-   
-//Biblioteca MFRC522
-  mfrc522.PICC_DumpDetailsToSerial(&(mfrc522.uid)); // dump some details about the card
-
-  Serial.print(F("Name: "));
-
-  byte buffer1[18];
-  block = 4;
-  len = 18;
-
-  //------------------------------------------- GET FIRST NAME
-  status = mfrc522.PCD_Authenticate(MFRC522::PICC_CMD_MF_AUTH_KEY_A, 4, &key, &(mfrc522.uid));
-  if (status != MFRC522::STATUS_OK) {
-    Serial.print(F("Authentication failed on block 4: "));
-    Serial.println(mfrc522.GetStatusCodeName(status));
-    mfrc522.PICC_HaltA();
-    mfrc522.PCD_StopCrypto1();
-    return;
-  }
-
-  status = mfrc522.MIFARE_Read(block, buffer1, &len);
-  if (status != MFRC522::STATUS_OK) {
-    Serial.print(F("Reading failed on block 4: "));
-    Serial.println(mfrc522.GetStatusCodeName(status));
-    mfrc522.PICC_HaltA();
-    mfrc522.PCD_StopCrypto1();
-    return;
-  }
-
-  //PRINT FIRST NAME
-  for (uint8_t i = 0; i < 16; i++) {
-    if (buffer1[i] != 32 && buffer1[i] != 0) { // Check for space (32) and null terminator (0)
-      Serial.write(buffer1[i]);
-    }
-  }
-  Serial.print(" ");
-
-  //---------------------------------------- GET LAST NAME
-  byte buffer2[18];
-  block = 1;
-
-  status = mfrc522.PCD_Authenticate(MFRC522::PICC_CMD_MF_AUTH_KEY_A, 1, &key, &(mfrc522.uid));
-  if (status != MFRC522::STATUS_OK) {
-    Serial.print(F("Authentication failed on block 1: "));
-    Serial.println(mfrc522.GetStatusCodeName(status));
-    mfrc522.PICC_HaltA();
-    mfrc522.PCD_StopCrypto1();
-    return;
-  }
-
-  status = mfrc522.MIFARE_Read(block, buffer2, &len);
-  if (status != MFRC522::STATUS_OK) {
-    Serial.print(F("Reading failed on block 1: "));
-    Serial.println(mfrc522.GetStatusCodeName(status));
-    mfrc522.PICC_HaltA();
-    mfrc522.PCD_StopCrypto1();
-    return;
-  }
-
-  //PRINT LAST NAME
-  for (uint8_t i = 0; i < 16; i++) {
-    if (buffer2[i] != 32 && buffer2[i] != 0) {
-      Serial.write(buffer2[i]);
-    }
-  }
 
 //Se a condição acima for falsa (se a TAG selecionada estiver cadastrada), executar a ação abaixo
 //Ação: "Exibe a mensagem "Acesso Liberado", acende o LED azul, espera 3 segundos e continua a programação"
