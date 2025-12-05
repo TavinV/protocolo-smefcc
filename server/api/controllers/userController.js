@@ -3,7 +3,7 @@ import rfidPendingService from "../services/rfidPendingServices.js";
 import ApiResponse from "../util/api-response.js";
 import handleControllerError from "../util/error-handler.js";
 
-import {validateUser, updateUserSchema, createUserSchema} from "../validation/validateUser.js";
+import { validateUser, updateUserSchema, createUserSchema } from "../validation/validateUser.js";
 
 const userController = {
     async createUser(req, res) {
@@ -34,7 +34,7 @@ const userController = {
                 }
             }
 
-            const userData = {...value, rfid: req.body.rfid || null };
+            const userData = { ...value, rfid: req.body.rfid || null };
             const user = await userService.create(userData);
 
             return ApiResponse.CREATED(res, "Usuário criado com sucesso!", user);
@@ -70,7 +70,18 @@ const userController = {
             return ApiResponse.OK(res, user);
         } catch (error) {
             return handleControllerError(error, res);
-        }},
+        }
+    },
+
+    async getUserByRfid(req, res) {
+        try {
+            const { rfid } = req.params;
+            const user = await userService.findByRFID(rfid);
+            return ApiResponse.OK(res, user);
+        } catch (error) {
+            return handleControllerError(error, res);
+        }
+    },
 
     async deleteUser(req, res) {
         try {
@@ -111,15 +122,14 @@ const userController = {
 
     async updateUser(req, res) {
         try {
-            const {error, value} = validateUser(req.body, updateUserSchema);
+            const { error, value } = validateUser(req.body, updateUserSchema);
 
             if (error) {
                 return ApiResponse.BADREQUEST(res, error[0]);
             }
 
             const userId = req.params.id;
-            const data = req.body;
-            const user = await userService.update(userId, data);
+            const user = await userService.update(userId, value);
             return ApiResponse.OK(res, "Usuário atualizado com sucesso", user);
         } catch (error) {
             return handleControllerError(error, res);
