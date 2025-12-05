@@ -7,8 +7,8 @@ const router = express.Router();
 
 router.get("/", authenticateToken, userController.getUsers);
 router.get("/me", authenticateToken, userController.getProfile);
+router.get("/rfid/:rfid", authenticateXApiKey, userController.getUserByRfid);
 router.get("/:id", authenticateToken, userController.getUserById);
-router.get("/:rfid", authenticateXApiKey, userController.getUserByRfid);
 
 router.post("/", authenticateToken, userController.createUser);
 
